@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Unlock, Fingerprint, Eye, EyeOff, ShieldAlert, Loader2, KeyRound } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 export default function SecuritySettings() {
   const [loading, setLoading] = useState(true);
@@ -24,6 +25,43 @@ export default function SecuritySettings() {
   const [removePasscode, setRemovePasscode] = useState('');
   const [removeError, setRemoveError] = useState<string | null>(null);
   const [removingPasscode, setRemovingPasscode] = useState(false);
+
+  // Change Account Password state
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPasswordText, setShowNewPasswordText] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [updatingPassword, setUpdatingPassword] = useState(false);
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match.');
+      return;
+    }
+
+    setUpdatingPassword(true);
+    setPasswordError(null);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+
+      alert('Password updated successfully!');
+      setShowPasswordForm(false);
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err: any) {
+      setPasswordError(err.message || 'Failed to update password.');
+    } finally {
+      setUpdatingPassword(false);
+    }
+  };
 
   // Fetch lock status
   const fetchLockStatus = async () => {
@@ -474,6 +512,150 @@ export default function SecuritySettings() {
           </div>
         </div>
       )}
+
+      {/* Account Password Card */}
+      <div
+        style={{
+          display: 'flex', alignItems: 'flex-start', gap: 14,
+          padding: '16px 18px',
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--r-xl)',
+        }}
+      >
+        <div style={{
+          width: 38, height: 38, borderRadius: 'var(--r-md)', flexShrink: 0,
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid var(--border-subtle)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: 'var(--text-muted)',
+        }}>
+          <KeyRound size={18} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 3px' }}>
+            Account Password
+          </p>
+          <p style={{ fontSize: 12.5, color: 'var(--text-muted)', margin: '0 0 12px', lineHeight: 1.5 }}>
+            Update your account login password.
+          </p>
+
+          <AnimatePresence mode="wait">
+            {!showPasswordForm ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <button
+                  onClick={() => { setShowPasswordForm(true); setPasswordError(null); }}
+                  style={{
+                    padding: '7px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                    background: 'var(--accent-primary)',
+                    color: 'var(--accent-on-primary)',
+                    border: 'none',
+                    cursor: 'pointer', fontFamily: 'inherit',
+                  }}
+                >
+                  Change password
+                </button>
+              </motion.div>
+            ) : (
+              <motion.form
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                onSubmit={handleUpdatePassword}
+                style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 320 }}
+              >
+                <div style={{ position: 'relative', width: '100%' }}>
+                  <input
+                    type={showNewPasswordText ? 'text' : 'password'}
+                    placeholder="Enter new password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                    style={{
+                      width: '100%',
+                      background: 'var(--bg-tertiary)',
+                      border: '1px solid var(--border-default)',
+                      borderRadius: 10,
+                      padding: '10px 42px 10px 12px',
+                      fontSize: 14,
+                      color: 'var(--text-primary)',
+                      outline: 'none',
+                      fontFamily: 'inherit',
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPasswordText(!showNewPasswordText)}
+                    style={{
+                      position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                      background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)',
+                      padding: 4, display: 'flex', alignItems: 'center'
+                    }}
+                  >
+                    {showNewPasswordText ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+
+                <input
+                  type={showNewPasswordText ? 'text' : 'password'}
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    background: 'var(--bg-tertiary)',
+                    border: '1px solid var(--border-default)',
+                    borderRadius: 10,
+                    padding: '10px 12px',
+                    fontSize: 14,
+                    color: 'var(--text-primary)',
+                    outline: 'none',
+                    fontFamily: 'inherit',
+                  }}
+                />
+
+                {passwordError && (
+                  <p style={{ margin: 0, fontSize: 12, color: 'var(--danger)', fontWeight: 600 }}>{passwordError}</p>
+                )}
+
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    type="submit"
+                    disabled={updatingPassword}
+                    style={{
+                      padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+                      background: 'var(--text-primary)',
+                      color: 'var(--bg-primary)',
+                      border: 'none',
+                      cursor: updatingPassword ? 'wait' : 'pointer', fontFamily: 'inherit',
+                    }}
+                  >
+                    {updatingPassword ? 'Updating...' : 'Update Password'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowPasswordForm(false); setNewPassword(''); setConfirmPassword(''); }}
+                    style={{
+                      padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                      background: 'transparent',
+                      color: 'var(--text-secondary)',
+                      border: '1px solid var(--border-default)',
+                      cursor: 'pointer', fontFamily: 'inherit',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 }

@@ -7,6 +7,8 @@ const PUBLIC_PATHS = new Set([
   '/charttest',
   '/privacy',
   '/terms',
+  '/forgot-password',
+  '/reset-password',
 ]);
 
 function isPublicPath(pathname: string) {
