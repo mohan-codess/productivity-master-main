@@ -32,9 +32,7 @@ function readAppliedTheme(): Theme {
   // the toggle's icon/state can never disagree with what's actually painted.
   const applied = document.documentElement.dataset.theme;
   if (applied === 'light' || applied === 'dark') return applied;
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored === 'light' || stored === 'dark') return stored;
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 function applyTheme(theme: Theme) {
@@ -45,8 +43,8 @@ function applyTheme(theme: Theme) {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('dark');
-  const [lightAccent, setLightAccentState] = useState('#7C3AED');
-  const [darkAccent, setDarkAccentState] = useState('#7C3AED');
+  const [lightAccent, setLightAccentState] = useState('#0071e3');
+  const [darkAccent, setDarkAccentState] = useState('#0071e3');
 
   useEffect(() => {
     // Sync React state to the theme the pre-paint script already applied,
@@ -56,10 +54,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     // Read and sync custom accents from localStorage safely
     try {
-      const la = localStorage.getItem('productivity_master_light_accent');
-      if (la) setLightAccentState(la);
-      const da = localStorage.getItem('productivity_master_dark_accent');
-      if (da) setDarkAccentState(da);
+      // Disabled to enforce #0071e3 everywhere
+      // const la = localStorage.getItem('productivity_master_light_accent');
+      // if (la) setLightAccentState(la);
+      // const da = localStorage.getItem('productivity_master_dark_accent');
+      // if (da) setDarkAccentState(da);
     } catch (e) {
       /* ignore */
     }
@@ -70,7 +69,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const onSystemChange = (e: MediaQueryListEvent) => {
       const next: Theme = e.matches ? 'dark' : 'light';
-      try { window.localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
       applyTheme(next);
       setThemeState(next);
     };
@@ -89,11 +87,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setTheme = useCallback((t: Theme) => {
     setThemeState(t);
     applyTheme(t);
-    try {
-      window.localStorage.setItem(STORAGE_KEY, t);
-    } catch {
-      /* silently ignore */
-    }
   }, []);
 
   const toggle = useCallback(() => {

@@ -421,7 +421,7 @@ export default function DashboardApp({
     return (
       <div
         style={{
-          background: 'radial-gradient(circle at top, color-mix(in srgb, var(--text-primary) 8%, transparent), transparent 42%), var(--bg-primary)',
+          background: 'var(--bg-primary)',
           fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           minHeight: '100dvh',
           display: 'flex',
@@ -437,7 +437,7 @@ export default function DashboardApp({
           style={{
             maxWidth: 390,
             width: '100%',
-            background: 'color-mix(in srgb, var(--bg-secondary) 94%, var(--text-primary) 6%)',
+            background: 'var(--bg-secondary)',
             border: '1px solid color-mix(in srgb, var(--text-primary) 10%, transparent)',
             borderRadius: 28,
             padding: '34px 26px 24px',

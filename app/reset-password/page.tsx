@@ -75,14 +75,12 @@ function ResetPasswordContent() {
               width: 34,
               height: 34,
               borderRadius: 'var(--r-md)',
-              background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--cyan) 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: 'none',
             }}
           >
-            <Zap size={17} color="var(--accent-on-primary)" fill="var(--accent-on-primary)" />
+            <span style={{ fontSize: 24, lineHeight: 1 }}>🙂</span>
           </div>
           <span
             className="gradient-text"

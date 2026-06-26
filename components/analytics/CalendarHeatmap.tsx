@@ -7,20 +7,22 @@ import { toLocalDateString } from '@/lib/utils/dates';
 interface CalendarHeatmapProps {
   data: HeatmapCell[];
   months?: number;
+  color?: string;
 }
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-function getColor(pct: number): string {
-  if (pct === 0) return 'rgba(255, 255, 255,0.04)';
-  if (pct < 25) return 'rgba(145, 145, 145, 0.2)';
-  if (pct < 50) return 'rgba(145, 145, 145, 0.4)';
-  if (pct < 75) return 'rgba(145, 145, 145, 0.7)';
-  return 'rgba(145, 145, 145, 1)';
+function getColor(pct: number, baseColor: string): string {
+  if (pct === 0) return 'var(--bg-secondary)'; // Make empty cells visible!
+  if (pct < 25) return `color-mix(in srgb, ${baseColor} 30%, transparent)`;
+  if (pct < 50) return `color-mix(in srgb, ${baseColor} 50%, transparent)`;
+  if (pct < 75) return `color-mix(in srgb, ${baseColor} 80%, transparent)`;
+  return baseColor;
 }
 
-const CalendarHeatmap = memo(function CalendarHeatmap({ data }: CalendarHeatmapProps) {
+const CalendarHeatmap = memo(function CalendarHeatmap({ data, color }: CalendarHeatmapProps) {
+  const baseColor = color ?? 'var(--accent-primary)';
   const { weeks, monthLabels } = useMemo(() => {
     if (!data || data.length === 0) return { weeks: [], monthLabels: [] };
 
@@ -87,8 +89,16 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data }: CalendarHeatmapP
   const CELL_GAP = 4;
   const DAY_LABEL_WIDTH = 32;
 
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+    }
+  }, [weeks]);
+
   return (
-    <div style={{ overflowX: 'auto', paddingBottom: 8 }}>
+    <div ref={scrollRef} style={{ overflowX: 'auto', paddingBottom: 8 }}>
       <style>{`.hf-cal-cell { transition: all 0.2s ease; } .hf-cal-cell:hover { transform: scale(1.5); position: relative; z-index: 10; box-shadow: 0 2px 8px rgba(145, 145, 145,0.3); }`}</style>
       <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 8, minWidth: 'max-content' }}>
         {/* Month labels */}
@@ -151,10 +161,10 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data }: CalendarHeatmapP
                     width: CELL_SIZE,
                     height: CELL_SIZE,
                     borderRadius: 5,
-                    background: getColor(cell.percentage),
+                    background: getColor(cell.percentage, baseColor),
                     flexShrink: 0,
                     cursor: 'default',
-                    border: cell.percentage > 0 ? '1px solid rgba(145, 145, 145,0.2)' : 'none',
+                    border: cell.percentage > 0 ? '1px solid color-mix(in srgb, var(--text-primary) 10%, transparent)' : '1px solid var(--border-subtle)',
                   }}
                 />
               );
@@ -172,8 +182,8 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data }: CalendarHeatmapP
                 width: CELL_SIZE,
                 height: CELL_SIZE,
                 borderRadius: 5,
-                background: getColor(pct),
-                border: pct > 0 ? '1px solid rgba(145, 145, 145,0.2)' : 'none',
+                background: getColor(pct, baseColor),
+                border: pct > 0 ? '1px solid color-mix(in srgb, var(--text-primary) 10%, transparent)' : '1px solid var(--border-subtle)',
               }}
             />
           ))}

@@ -16,6 +16,7 @@ const NAV = [
   { label: 'Habits',       tab: 'habits',       icon: Dumbbell,        color: 'var(--accent-primary)', glow: 'rgba(85, 85, 85,0.15)' },
   { label: 'Analytics',    tab: 'analytics',    icon: BarChart2,       color: 'var(--accent-primary)', glow: 'rgba(85, 85, 85,0.15)' },
   { label: 'Achievements', tab: 'achievements', icon: Trophy,          color: '#a6a6a6',               glow: 'rgba(166, 166, 166,0.15)' },
+  { label: 'Year in Review', tab: 'year-review',  icon: CalendarDays,  color: '#a6a6a6',               glow: 'rgba(166, 166, 166,0.15)' },
   { label: 'Settings',     tab: 'settings',     icon: Settings2,       color: 'var(--accent-primary)', glow: 'rgba(85, 85, 85,0.15)' },
 ];
 
@@ -23,7 +24,6 @@ const HABIT_SUB_NAV = [
   { label: 'Overview',       tab: 'habits',       icon: LayoutDashboard },
   { label: 'Analytics',      tab: 'analytics',    icon: BarChart2 },
   { label: 'Achievements',   tab: 'achievements', icon: Trophy },
-  { label: 'Your Coach',     tab: 'coach',        icon: Brain },
   { label: 'Year in Review', tab: 'year-review',  icon: CalendarDays },
 ];
 
@@ -87,7 +87,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
     .toUpperCase()
     .slice(0, 2);
 
-  const isHabitsActive = ['home', 'habits', 'analytics', 'achievements', 'coach', 'year-review', 'settings'].includes(activeTab);
+  const isHabitsActive = ['home', 'habits', 'analytics', 'achievements', 'year-review', 'settings'].includes(activeTab);
   const isTripActive = pathname?.startsWith('/trip') ?? false;
 
   return (
@@ -136,13 +136,12 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                       width: 36,
                       height: 36,
                       borderRadius: 12,
-                      background: 'var(--accent-primary)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
                   >
-                    <Zap size={18} color="var(--accent-on-primary)" fill="var(--accent-on-primary)" />
+                    <span style={{ fontSize: 24, lineHeight: 1 }}>🙂</span>
                   </div>
                   <span
                     style={{
@@ -445,14 +444,13 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
               width: 40,
               height: 40,
               borderRadius: 12,
-              background: 'var(--accent-primary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
             }}
           >
-            <Zap size={20} color="var(--accent-on-primary)" fill="var(--accent-on-primary)" />
+            <span style={{ fontSize: 26, lineHeight: 1 }}>🙂</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span
@@ -473,7 +471,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                 marginTop: 1,
               }}
             >
-              Habit Tracker
+              by Mohan
             </span>
           </div>
         </div>

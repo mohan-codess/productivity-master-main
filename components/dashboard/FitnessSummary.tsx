@@ -7,7 +7,7 @@ import {
   User, Plus, LayoutDashboard, BarChart3, Trophy, Sparkles,
   CalendarCheck, Compass, Settings, Flame, CheckCircle2, TrendingUp,
   Target, Sun, Moon, ArrowLeft, Wallet, Receipt, MapPin, ExternalLink,
-  Luggage, Coins, ChevronDown, Ban,
+  Luggage, Coins, ChevronDown, Ban, Download,
 } from 'lucide-react';
 import { DynamicIcon, HABIT_ICON_NAMES } from '@/lib/icons';
 import DevicesModal from '@/components/settings/DevicesModal';
@@ -20,6 +20,7 @@ import { todayString } from '@/lib/utils/dates';
 import type { Trip, TripExpense, TripSettlement } from '@/lib/trip/types';
 import { computeSettlement } from '@/lib/trip/settlement';
 import { formatINR, daysUntil } from '@/lib/trip/format';
+import { generateHabitReport } from '@/lib/utils/pdf';
 
 interface FitnessSummaryProps {
   stats: OverviewStats | null;
@@ -40,7 +41,7 @@ const PURPLE_MID = 'var(--surface-tint-mid)';
 const TEXT_DARK = 'var(--text-primary)';
 const TEXT_MUTED = 'var(--text-muted)';
 // Raw hex needed only for SVG attributes and rgba() calls
-const PURPLE_HEX = '#7C3AED';
+const BLUE_HEX = '#0071e3';
 
 // Bad-habit theming — red accents, kept consistent with HabitCard/HabitList
 const RED = '#F87171';
@@ -578,17 +579,31 @@ function HabitDetailSheet({
             </div>
             <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
               {!editMode && (
-                <button
-                  onClick={() => { setEditName(habit.name); setEditIcon(habit.icon ?? 'circle-check'); setEditColor(habit.color || '#555555'); setEditNotes(habit.description ?? ''); setEditMode(true); }}
-                  style={{
-                    width: 34, height: 34, borderRadius: '50%',
-                    background: PURPLE_LIGHT, border: 'none',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <DynamicIcon name="pencil" size={16} color={PURPLE} />
-                </button>
+                <>
+                  <button
+                    onClick={() => generateHabitReport(habit, rate, monthDone, monthRate)}
+                    style={{
+                      width: 34, height: 34, borderRadius: '50%',
+                      background: PURPLE_LIGHT, border: 'none',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer',
+                    }}
+                    title="Download PDF Report"
+                  >
+                    <Download size={16} color={PURPLE} />
+                  </button>
+                  <button
+                    onClick={() => { setEditName(habit.name); setEditIcon(habit.icon ?? 'circle-check'); setEditColor(habit.color || '#555555'); setEditNotes(habit.description ?? ''); setEditMode(true); }}
+                    style={{
+                      width: 34, height: 34, borderRadius: '50%',
+                      background: PURPLE_LIGHT, border: 'none',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <DynamicIcon name="pencil" size={16} color={PURPLE} />
+                  </button>
+                </>
               )}
               <button
                 onClick={editMode ? () => setEditMode(false) : onClose}
@@ -878,8 +893,8 @@ function HabitDetailSheet({
               onClick={() => setConfirmDelete(true)}
               style={{
                 marginTop: 16, width: '100%', padding: '14px 0', borderRadius: 16, border: 'none',
-                background: 'rgba(104, 104, 104,0.08)',
-                color: '#6a6a6a', fontSize: 14, fontWeight: 700,
+                background: 'rgba(239, 68, 68, 0.1)',
+                color: '#EF4444', fontSize: 14, fontWeight: 700,
                 cursor: 'pointer', fontFamily: 'inherit',
               }}
             >
@@ -895,7 +910,7 @@ function HabitDetailSheet({
                   onClick={() => setConfirmDelete(false)}
                   style={{
                     flex: 1, padding: '12px 0', borderRadius: 12, border: 'none',
-                    background: PURPLE_LIGHT, color: PURPLE, fontSize: 14, fontWeight: 700,
+                    background: 'rgba(104, 104, 104, 0.08)', color: '#6a6a6a', fontSize: 14, fontWeight: 700,
                     cursor: 'pointer', fontFamily: 'inherit',
                   }}
                 >
@@ -906,7 +921,7 @@ function HabitDetailSheet({
                   disabled={deleting}
                   style={{
                     flex: 1, padding: '12px 0', borderRadius: 12, border: 'none',
-                    background: '#6a6a6a', color: '#fff', fontSize: 14, fontWeight: 700,
+                    background: '#EF4444', color: '#fff', fontSize: 14, fontWeight: 700,
                     cursor: deleting ? 'default' : 'pointer', fontFamily: 'inherit',
                     opacity: deleting ? 0.7 : 1,
                   }}
@@ -928,7 +943,7 @@ const HABIT_ICONS = HABIT_ICON_NAMES;
 // Premium jewel-tone palette — tuned to read well on both the light
 // (purple-tinted) and dark surfaces. First entry is the brand violet (default).
 const HABIT_COLORS = [
-  '#7C3AED', // amethyst (brand)
+  '#0071e3', // apple blue (brand)
   '#4F46E5', // indigo
   '#2563EB', // sapphire
   '#0891B2', // teal
@@ -1734,28 +1749,31 @@ export default function FitnessSummary({
             transition={{ duration: 0.3 }}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}
           >
-            <div style={{ minWidth: 0 }}>
-              <p style={{ margin: 0, fontSize: 12.5, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.03em' }}>
+            <div className="hf-greeting-container" style={{ minWidth: 0 }}>
+              <p className="hf-greeting-text" style={{ margin: 0, fontSize: 12.5, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.03em' }}>
                 {greeting}, {displayName.split(' ')[0]} 👋
               </p>
               <h1 style={{ margin: '3px 0 0', fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1.1, fontFamily: "'Outfit', sans-serif" }}>
                 Overview
               </h1>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div className="hf-topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <button
+                className="hf-add-habit-btn"
                 onClick={() => setAddOpen(true)}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 7,
                   padding: '11px 16px', borderRadius: 12, border: 'none', cursor: 'pointer',
                   background: 'var(--accent-primary)', color: 'var(--accent-on-primary)',
                   fontSize: 14, fontWeight: 700, fontFamily: 'inherit',
+                  justifyContent: 'center',
                 }}
               >
                 <Plus size={18} strokeWidth={2.6} />
-                <span className="hf-dash-btn-label">New Habit</span>
+                <span className="hf-dash-btn-label">Add New Habit</span>
               </button>
               <Link
+                className="hf-profile-link"
                 href="/dashboard/settings"
                 aria-label="Open profile settings"
                 style={{
@@ -1838,13 +1856,7 @@ export default function FitnessSummary({
             </div>
           </DashCard>
 
-          {/* ── KPI cards ── */}
-          <div className="hf-stats-grid">
-            <KpiCard icon={<Target size={17} />} label="Active Habits" value={totalCount} sub="being tracked" />
-            <KpiCard icon={<CheckCircle2 size={17} />} label={isViewingToday ? 'Completed Today' : 'Completed'} value={`${completedCount}/${totalCount}`} sub={`${todayPct}% complete`} />
-            <KpiCard icon={<Flame size={17} />} label="Best Streak" value={stats?.bestStreak ?? 0} suffix="d" sub={stats?.bestStreakHabitName || 'start a streak'} />
-            <KpiCard icon={<TrendingUp size={17} />} label="Weekly Avg" value={avgPct} suffix="%" sub="last 7 days" />
-          </div>
+
 
           {/* ── 2-column widget grid ── */}
           <div className="hf-dashboard-grid">
@@ -2015,7 +2027,13 @@ export default function FitnessSummary({
 
       {/* Responsive: hide button label on tiny phones */}
       <style>{`
-        @media (max-width: 479px) { .hf-dash-btn-label { display: none; } }
+        @media (max-width: 479px) { 
+          .hf-greeting-container { display: none; }
+          .hf-greeting-text { display: none; }
+          .hf-profile-link { display: none !important; }
+          .hf-topbar-actions { width: 100%; margin-top: 0px; }
+          .hf-add-habit-btn { width: 100%; }
+        }
       `}</style>
 
       {/* ── Habit Detail Sheet ── */}

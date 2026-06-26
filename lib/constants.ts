@@ -21,17 +21,7 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
   { type: 'comeback_kid',   title: 'Comeback Kid',        description: 'Resumed a habit after 7+ days and built a 7-day streak', icon: 'refresh-cw', color: '#6f6f6f', rarity: 'rare' },
 ];
 
-export const HABIT_ICONS = [
-  'circle-check', 'dumbbell', 'book-open', 'droplets', 'brain', 'heart', 'zap',
-  'moon', 'sun', 'coffee', 'pencil', 'music', 'camera', 'bike', 'running',
-  'meditation', 'leaf', 'star', 'fire', 'timer', 'apple', 'bed', 'code',
-  'palette', 'globe', 'shopping-bag', 'utensils', 'activity',
-];
 
-export const CATEGORY_COLORS = [
-  'var(--accent-primary)', '#7b7b7b', '#717171', '#a6a6a6', '#717171',
-  '#6f6f6f', '#949494', '#898989', '#686868', '#b0b0b0',
-];
 
 export const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-export const DAY_LABELS_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+

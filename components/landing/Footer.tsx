@@ -59,13 +59,11 @@ export default function Footer() {
                 width: 28,
                 height: 28,
                 borderRadius: 'var(--r-sm)',
-                background: 'var(--accent-glow-md)',
-                border: '1px solid var(--border-accent)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-                <Zap size={14} color="var(--accent-primary)" fill="var(--accent-primary)" />
+                <span style={{ fontSize: 22, lineHeight: 1 }}>🙂</span>
               </div>
               <span style={{
                 fontSize: 15,

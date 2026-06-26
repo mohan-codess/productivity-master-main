@@ -76,18 +76,15 @@ export default function MobileDock() {
     router.push('/trip');
   };
 
-  const navigateToCoach = () => {
-    router.push('/dashboard/coach');
-  };
+
 
   const showFinancePlaceholder = () => {
     toast('Coming Soon - Finance & Savings Tracker service', 'info');
   };
 
   // Determine active tab (path-based so subpages highlight the right tab)
-  const isCoachActive = pathname.startsWith('/dashboard/coach');
   const isTripActive = pathname.startsWith('/trip');
-  const isHabitsActive = pathname.startsWith('/dashboard') && !isCoachActive && activeApp === 'habits';
+  const isHabitsActive = pathname.startsWith('/dashboard') && activeApp === 'habits';
   const isHubActive = pathname === '/dashboard' && activeApp === null;
 
   // Active styling helper
@@ -140,16 +137,6 @@ export default function MobileDock() {
         style={tabStyle(isHabitsActive)}
       >
         <PieChart size={20} />
-      </button>
-
-      {/* 2. Coach (Presentation Board / AI Insights) */}
-      <button
-        type="button"
-        title="AI Coach"
-        onClick={navigateToCoach}
-        style={tabStyle(isCoachActive)}
-      >
-        <Presentation size={20} />
       </button>
 
       {/* 3. Finance/Savings (Credit Card - Placeholder) */}

@@ -56,7 +56,7 @@ export function exportExpensesToPDF(expenses: TripExpense[], settlement: Settlem
       Number(e.amount).toLocaleString('en-IN'),
     ]),
     styles: { fontSize: 9 },
-    headStyles: { fillColor: [124, 58, 237] },
+    headStyles: { fillColor: [0, 113, 227] },
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

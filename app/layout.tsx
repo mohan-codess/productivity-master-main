@@ -28,6 +28,10 @@ export const metadata: Metadata = {
   title: "Productivity Master — Build daily habits that actually stick",
   description: "Premium habit tracker for routines, streaks, and self-growth. Track, analyze, and stay consistent — beautifully.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🙂</text></svg>",
+    apple: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🙂</text></svg>",
+  },
   openGraph: {
     title: "Productivity Master",
     description: "Premium habit tracker for routines, streaks, and self-growth.",
@@ -74,7 +78,7 @@ export default function RootLayout({
         <script
           // Prevent flash of wrong theme — runs before paint.
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var k='productivity_master_theme';var s=localStorage.getItem(k);var t=(s==='light'||s==='dark')?s:(window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t;var la=localStorage.getItem('productivity_master_light_accent')||'#7C3AED';var da=localStorage.getItem('productivity_master_dark_accent')||'#7C3AED';document.documentElement.style.setProperty('--accent-primary',t==='light'?la:da);}catch(e){}})();`,
+            __html: `(function(){try{var t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t;var la='#0071e3';document.documentElement.style.setProperty('--accent-primary',la);}catch(e){}})();`,
           }}
         />
       </head>

@@ -34,7 +34,7 @@ import type { LucideProps } from 'lucide-react';
 
 export type IconComponent = React.ComponentType<LucideProps>;
 
-export const ICON_MAP: Record<string, IconComponent> = {
+const ICON_MAP: Record<string, IconComponent> = {
   // habit icons
   'circle-check': CircleCheck, 'zap': Zap, 'flame': Flame, 'target': Target,
   'activity': Activity, 'award': Award, 'trophy': Trophy, 'heart': Heart,

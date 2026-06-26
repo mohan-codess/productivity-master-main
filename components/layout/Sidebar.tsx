@@ -91,29 +91,28 @@ function NavGroup({
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-      {/* White pill header button */}
+      {/* Accent pill header button */}
       <button
         onClick={onToggle}
         style={{
           width: '100%', display: 'flex', alignItems: 'center', gap: 10,
           padding: '10px 14px', borderRadius: 12, border: 'none', cursor: 'pointer',
-          background: '#ffffff',
-          color: '#1a1a1a',
+          background: 'var(--accent-primary)',
+          color: 'var(--accent-on-primary)',
           fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit', textAlign: 'left',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.18)',
           transition: 'opacity 0.15s',
         }}
         onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.88'; }}
         onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
       >
-        <span style={{ display: 'flex', flexShrink: 0, color: '#1a1a1a' }}>{icon}</span>
+        <span style={{ display: 'flex', flexShrink: 0, color: 'inherit' }}>{icon}</span>
         <span style={{ flex: 1 }}>{label}</span>
         <motion.span
           animate={{ rotate: expanded ? 180 : 0 }}
           transition={{ duration: 0.22 }}
           style={{ display: 'flex', alignItems: 'center' }}
         >
-          <ChevronDown size={15} color="#555" />
+          <ChevronDown size={15} color="currentColor" />
         </motion.span>
       </button>
 
@@ -188,6 +187,15 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
   const [devicesOpen, setDevicesOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (isCollapsed) {
+      document.body.classList.add('sidebar-collapsed');
+    } else {
+      document.body.classList.remove('sidebar-collapsed');
+    }
+  }, [isCollapsed]);
 
   // Switch/Create Trip states
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -323,7 +331,6 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
   const isOverviewActive = pathname === '/dashboard';
   const isAnalyticsActive = pathname === '/dashboard/analytics';
   const isAchievementsActive = pathname === '/dashboard/achievements';
-  const isCoachActive = pathname === '/dashboard/coach';
   const isYearActive = pathname === '/dashboard/year-in-review';
   const isSettingsActive = pathname === '/dashboard/settings';
 
@@ -336,6 +343,23 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
 
   return (
     <>
+      {/* Floating Expand Toggle (Visible only when collapsed) */}
+      {isCollapsed && (
+        <button
+          onClick={() => setIsCollapsed(false)}
+          className="hf-desktop-sidebar-toggle"
+          style={{
+            position: 'fixed', top: 22, left: 16, zIndex: 60,
+            background: 'var(--bg-tertiary)', border: '1px solid var(--border-default)',
+            borderRadius: 8, padding: 8, cursor: 'pointer',
+            color: 'var(--text-primary)', display: 'none'
+          }}
+          title="Show Sidebar"
+        >
+          <Menu size={20} />
+        </button>
+      )}
+
       <aside
         className="hf-desktop-sidebar no-print"
         style={{
@@ -348,19 +372,20 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
         }}
       >
         {/* Brand */}
-        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '2px 8px 22px', textDecoration: 'none' }}>
-          <div style={{
-            width: 38, height: 38, borderRadius: 11, flexShrink: 0,
-            background: 'var(--accent-primary)', color: 'var(--accent-on-primary)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <CheckCircle2 size={21} strokeWidth={2.4} />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', fontFamily: "'Outfit', sans-serif" }}>Productivity Master</p>
-            <p style={{ margin: '1px 0 0', fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>Habit Tracker</p>
-          </div>
-        </Link>
+        <div style={{ padding: '2px 8px 22px' }}>
+          <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 11, textDecoration: 'none' }}>
+            <div style={{
+              width: 38, height: 38, borderRadius: 11, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <span style={{ fontSize: 26, lineHeight: 1 }}>🙂</span>
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', fontFamily: "'Outfit', sans-serif" }}>Productivity Master</p>
+              <p style={{ margin: '1px 0 0', fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>by Mohan</p>
+            </div>
+          </Link>
+        </div>
 
 
         {/* Search */}
@@ -392,7 +417,6 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
             <SubNavItem icon={<LayoutDashboard size={15} />} label="Overview" active={isOverviewActive} href="/dashboard" onClick={(e) => { if (isOverviewActive) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); } }} />
             <SubNavItem icon={<BarChart3 size={15} />} label="Analytics" active={isAnalyticsActive} href="/dashboard/analytics" />
             <SubNavItem icon={<Trophy size={15} />} label="Achievements" active={isAchievementsActive} href="/dashboard/achievements" />
-            <SubNavItem icon={<Sparkles size={15} />} label="Your Coach" active={isCoachActive} href="/dashboard/coach" />
             <SubNavItem icon={<CalendarCheck size={15} />} label="Year in Review" active={isYearActive} href="/dashboard/year-in-review" />
           </NavGroup>
 
@@ -454,6 +478,21 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
         {/* Footer */}
         <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 6, paddingTop: 18 }}>
           <button
+            onClick={() => setIsCollapsed(true)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 12, width: '100%',
+              padding: '11px 14px', borderRadius: 12, border: 'none', cursor: 'pointer',
+              background: 'transparent', color: 'var(--text-secondary)',
+              fontSize: 14, fontWeight: 600, fontFamily: 'inherit', textAlign: 'left',
+              transition: 'background 0.15s ease',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-tint)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+          >
+            <span style={{ display: 'flex', flexShrink: 0 }}><Menu size={18} /></span>
+            Hide sidebar
+          </button>
+          <button
             onClick={toggle}
             style={{
               display: 'flex', alignItems: 'center', gap: 12, width: '100%',
@@ -495,35 +534,35 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
         </div>
       </aside>
 
-      {/* Mobile Topbar (Sticky header visible < 1024px) */}
-      <header
-        className="hf-mobile-nav no-print"
-        style={{
-          height: 60,
-          padding: '0 16px',
-          background: 'var(--bg-glass-strong)',
-          borderBottom: '1px solid var(--border-default)',
-          position: 'sticky',
-          top: 0,
-          zIndex: 40,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          width: '100%',
-        }}
-      >
+      {/* Mobile Topbar (Fixed header visible < 1024px) */}
+      <div className="hf-mobile-nav no-print" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 40, padding: '16px 16px 0 16px' }}>
+        <header
+          style={{
+            height: 60,
+            padding: '0 16px',
+            background: 'var(--bg-glass-strong)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 16,
+            boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+          }}
+        >
         {/* Brand */}
         <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <div style={{
             width: 34, height: 34, borderRadius: 10,
-            background: 'var(--accent-primary)', color: 'var(--accent-on-primary)',
             display: 'flex', justifyContent: 'center', alignItems: 'center',
           }}>
-            <CheckCircle2 size={18} strokeWidth={2.4} />
+            <span style={{ fontSize: 24, lineHeight: 1 }}>🙂</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
             <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Outfit', sans-serif" }}>Productivity Master</span>
-            <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>Habit Tracker</span>
+            <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>by Mohan</span>
           </div>
         </Link>
 
@@ -542,7 +581,9 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
         >
           <Menu size={18} />
         </button>
-      </header>
+        </header>
+      </div>
+      <div className="hf-mobile-nav no-print" style={{ height: 76, width: '100%', flexShrink: 0 }} aria-hidden="true" />
 
       {/* Mobile Drawer (visible only < 1024px) */}
       <AnimatePresence>
@@ -597,7 +638,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
                     <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Outfit', sans-serif" }}>Productivity Master</span>
-                    <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>Habit Tracker</span>
+                    <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>by Mohan</span>
                   </div>
                 </Link>
                 <button
@@ -640,7 +681,6 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
                   <SubNavItem icon={<LayoutDashboard size={15} />} label="Overview" active={isOverviewActive} href="/dashboard" onClick={() => setMobileOpen(false)} />
                   <SubNavItem icon={<BarChart3 size={15} />} label="Analytics" active={isAnalyticsActive} href="/dashboard/analytics" onClick={() => setMobileOpen(false)} />
                   <SubNavItem icon={<Trophy size={15} />} label="Achievements" active={isAchievementsActive} href="/dashboard/achievements" onClick={() => setMobileOpen(false)} />
-                  <SubNavItem icon={<Sparkles size={15} />} label="Your Coach" active={isCoachActive} href="/dashboard/coach" onClick={() => setMobileOpen(false)} />
                   <SubNavItem icon={<CalendarCheck size={15} />} label="Year in Review" active={isYearActive} href="/dashboard/year-in-review" onClick={() => setMobileOpen(false)} />
                 </NavGroup>
 

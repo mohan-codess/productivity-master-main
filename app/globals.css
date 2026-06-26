@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+* {
+  box-shadow: none !important;
+}
+
 @theme {
   /* Surfaces */
   --color-bg-primary: var(--bg-primary);
@@ -89,22 +93,22 @@
    Typography + spacing + radius scales are first-class tokens.
    ─────────────────────────────────────────────────────────────────────── */
 :root {
-  /* Surfaces — dark with purple undertone */
-  --bg-primary:      #0A0A12;
-  --bg-secondary:    #111120;
-  --bg-tertiary:     #1A1A2E;
-  --bg-elevated:     #22223A;
+  /* Surfaces — dark with neutral undertone */
+  --bg-primary:      #0A0A0A;
+  --bg-secondary:    #121212;
+  --bg-tertiary:     #1A1A1A;
+  --bg-elevated:     #242424;
 
   /* Glass */
-  --bg-card:         rgba(17, 17, 32, 0.90);
-  --bg-glass:        rgba(17, 17, 32, 0.80);
-  --bg-glass-strong: rgba(10, 10, 18, 0.94);
-  --bg-overlay:      rgba(5, 5, 15, 0.80);
+  --bg-card:         rgba(18, 18, 18, 0.90);
+  --bg-glass:        rgba(18, 18, 18, 0.80);
+  --bg-glass-strong: rgba(10, 10, 10, 0.94);
+  --bg-overlay:      rgba(0, 0, 0, 0.80);
 
   /* Accent — dynamic color mix */
-  --accent-primary:    #7C3AED;
-  --accent-primary-rgb: 124, 58, 237;
-  --accent-hover:      color-mix(in srgb, var(--accent-primary) 85%, #000);
+  --accent-primary:    #0071e3;
+  --accent-primary-rgb: 0, 113, 227;
+  --accent-hover:      #0076df;
   --accent-light:      color-mix(in srgb, var(--accent-primary) 70%, #fff);
   --accent-on-primary: #FFFFFF;
   --accent-glow:       color-mix(in srgb, var(--accent-primary) 12%, transparent);
@@ -215,19 +219,19 @@
 
 /* ─── Light theme ─────────────────────────────────────────────────────── */
 [data-theme="light"] {
-  --bg-primary:      #F5F3FF;
+  --bg-primary:      #FFFFFF;
   --bg-secondary:    #FFFFFF;
-  --bg-tertiary:     #EDE9FE;
+  --bg-tertiary:     #F4F4F5;
   --bg-elevated:     #FFFFFF;
 
   --bg-card:         rgba(255, 255, 255, 0.95);
   --bg-glass:        rgba(255, 255, 255, 0.85);
   --bg-glass-strong: rgba(255, 255, 255, 0.97);
-  --bg-overlay:      rgba(30, 10, 60, 0.45);
+  --bg-overlay:      rgba(0, 0, 0, 0.45);
 
-  --accent-primary:    #7C3AED;
-  --accent-primary-rgb: 124, 58, 237;
-  --accent-hover:      color-mix(in srgb, var(--accent-primary) 85%, #000);
+  --accent-primary:    #0071e3;
+  --accent-primary-rgb: 0, 113, 227;
+  --accent-hover:      #0076df;
   --accent-light:      color-mix(in srgb, var(--accent-primary) 70%, #fff);
   --accent-on-primary: #FFFFFF;
   --accent-glow:       color-mix(in srgb, var(--accent-primary) 8%, transparent);
@@ -282,12 +286,12 @@
 
   /* ── Card tokens — light ── */
   --glass-bg:           var(--bg-secondary);
-  --glass-bg-purple:    color-mix(in srgb, var(--accent-primary) 6%, transparent);
+  --glass-bg-accent:    color-mix(in srgb, var(--accent-primary) 6%, transparent);
   --glass-bg-sheet:     var(--bg-secondary);
   --glass-blur:         none;
-  --glass-shadow:       0 1px 3px rgba(100,80,200,0.10), 0 0 0 1px var(--border-subtle);
-  --glass-shadow-sm:    0 1px 2px rgba(100,80,200,0.08), 0 0 0 1px var(--border-subtle);
-  --glass-shadow-purple:0 2px 8px color-mix(in srgb, var(--accent-primary) 12%, transparent), 0 0 0 1px color-mix(in srgb, var(--accent-primary) 16%, transparent);
+  --glass-shadow:       0 1px 3px rgba(0,0,0,0.10), 0 0 0 1px var(--border-subtle);
+  --glass-shadow-sm:    0 1px 2px rgba(0,0,0,0.08), 0 0 0 1px var(--border-subtle);
+  --glass-shadow-accent:0 2px 8px color-mix(in srgb, var(--accent-primary) 12%, transparent), 0 0 0 1px color-mix(in srgb, var(--accent-primary) 16%, transparent);
   --glass-border:       none;
 }
 
@@ -395,9 +399,9 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: var(--glass-shadow-sm);
 }
 
-.liquid-glass-purple {
-  background: var(--glass-bg-purple);
-  box-shadow: var(--glass-shadow-purple);
+.liquid-glass-accent {
+  background: var(--glass-bg-accent);
+  box-shadow: var(--glass-shadow-accent);
 }
 
 /* Gradient text — flattened to solid ink (monochrome) */
@@ -829,16 +833,30 @@ h1, h2, h3, h4, h5, h6 {
 /* Desktop sidebar offset for the Trip app — mirrors the habits dashboard.
    The fixed .hf-desktop-sidebar lives in the left gutter; the mobile top bar
    (hamburger) is hidden ≥1024px since the sidebar replaces it. */
+.trip-layout-root { transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 @media (min-width: 1024px) {
   .trip-layout-root { padding-left: 264px; }
+  body.sidebar-collapsed .trip-layout-root { padding-left: 0; }
   .trip-topbar { display: none !important; }
 }
 
 /* Habit Tracker dashboard layout offset */
-.dashboard-layout-container { padding-left: 0; }
+.dashboard-layout-container { padding-left: 0; transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 @media (min-width: 1024px) {
   .dashboard-layout-container {
     padding-left: 264px;
+  }
+  body.sidebar-collapsed .dashboard-layout-container {
+    padding-left: 0;
+  }
+  .hf-desktop-sidebar {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body.sidebar-collapsed .hf-desktop-sidebar {
+    transform: translateX(-100%);
+  }
+  body.sidebar-collapsed .hf-desktop-sidebar-toggle {
+    display: flex !important;
   }
 }
 .trip-hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: stretch; }

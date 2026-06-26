@@ -9,14 +9,7 @@ import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { useTheme } from '@/components/ui/ThemeProvider';
 import { Shield, Sun, Moon, HelpCircle, LogOut } from 'lucide-react';
 
-const PRESET_COLORS = [
-  { name: 'Purple', value: '#7C3AED' },
-  { name: 'Royal Blue', value: '#2563EB' },
-  { name: 'Emerald', value: '#059669' },
-  { name: 'Sunset', value: '#EA580C' },
-  { name: 'Coral', value: '#E11D48' },
-  { name: 'Teal', value: '#0D9488' },
-];
+
 
 export default function SettingsPage() {
   const [devicesOpen, setDevicesOpen] = useState(false);
@@ -24,7 +17,7 @@ export default function SettingsPage() {
   const [signingOut, setSigningOut] = useState(false);
 
   const supabase = useMemo(() => createClient(), []);
-  const { theme, toggle, lightAccent, darkAccent, setLightAccent, setDarkAccent } = useTheme();
+  const { theme, toggle } = useTheme();
   const isDark = theme === 'dark';
 
   useEffect(() => {
@@ -185,135 +178,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div style={{ height: 1, background: 'var(--divider)', margin: '4px 0' }} />
 
-          {/* Light Theme Accent Color Settings */}
-          <div>
-            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
-              Light Theme Accent Color
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              {PRESET_COLORS.map((preset) => {
-                const isSelected = lightAccent.toLowerCase() === preset.value.toLowerCase();
-                return (
-                  <button
-                    key={preset.value}
-                    onClick={() => setLightAccent(preset.value)}
-                    title={preset.name}
-                    style={{
-                      width: 28, height: 28, borderRadius: '50%',
-                      background: preset.value,
-                      border: isSelected ? '2px solid var(--text-primary)' : '1px solid var(--border-default)',
-                      boxShadow: isSelected ? '0 0 0 2px var(--bg-primary)' : 'none',
-                      cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      padding: 0,
-                      transform: isSelected ? 'scale(1.1)' : 'scale(1)',
-                      transition: 'all 0.15s ease',
-                    }}
-                  >
-                    {isSelected && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff' }} />}
-                  </button>
-                );
-              })}
-              
-              {/* Custom Color Wheel */}
-              <div 
-                style={{ 
-                  position: 'relative', width: 28, height: 28, borderRadius: '50%', 
-                  border: !PRESET_COLORS.some(p => p.value.toLowerCase() === lightAccent.toLowerCase()) ? '2px solid var(--text-primary)' : '1px solid var(--border-default)',
-                  boxShadow: !PRESET_COLORS.some(p => p.value.toLowerCase() === lightAccent.toLowerCase()) ? '0 0 0 2px var(--bg-primary)' : 'none',
-                  overflow: 'hidden', cursor: 'pointer',
-                  background: 'conic-gradient(from 0deg, red, yellow, green, cyan, blue, magenta, red)',
-                  transform: !PRESET_COLORS.some(p => p.value.toLowerCase() === lightAccent.toLowerCase()) ? 'scale(1.1)' : 'scale(1)',
-                  transition: 'all 0.15s ease',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}
-                title="Custom color"
-              >
-                {!PRESET_COLORS.some(p => p.value.toLowerCase() === lightAccent.toLowerCase()) && (
-                  <span style={{ 
-                    position: 'absolute', zIndex: 1, pointerEvents: 'none', 
-                    width: 6, height: 6, borderRadius: '50%', background: '#fff',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.5)'
-                  }} />
-                )}
-                <input 
-                  type="color" 
-                  value={lightAccent} 
-                  onChange={(e) => setLightAccent(e.target.value)} 
-                  style={{ position: 'absolute', inset: -4, width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', opacity: 0, cursor: 'pointer' }}
-                />
-              </div>
-              <span style={{ fontSize: 12, color: 'var(--text-muted)', marginLeft: 4 }}>
-                {lightAccent.toUpperCase()}
-              </span>
-            </div>
-          </div>
-
-          {/* Dark Theme Accent Color Settings */}
-          <div>
-            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
-              Dark Theme Accent Color
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              {PRESET_COLORS.map((preset) => {
-                const isSelected = darkAccent.toLowerCase() === preset.value.toLowerCase();
-                return (
-                  <button
-                    key={preset.value}
-                    onClick={() => setDarkAccent(preset.value)}
-                    title={preset.name}
-                    style={{
-                      width: 28, height: 28, borderRadius: '50%',
-                      background: preset.value,
-                      border: isSelected ? '2px solid var(--text-primary)' : '1px solid var(--border-default)',
-                      boxShadow: isSelected ? '0 0 0 2px var(--bg-primary)' : 'none',
-                      cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      padding: 0,
-                      transform: isSelected ? 'scale(1.1)' : 'scale(1)',
-                      transition: 'all 0.15s ease',
-                    }}
-                  >
-                    {isSelected && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff' }} />}
-                  </button>
-                );
-              })}
-              
-              {/* Custom Color Wheel */}
-              <div 
-                style={{ 
-                  position: 'relative', width: 28, height: 28, borderRadius: '50%', 
-                  border: !PRESET_COLORS.some(p => p.value.toLowerCase() === darkAccent.toLowerCase()) ? '2px solid var(--text-primary)' : '1px solid var(--border-default)',
-                  boxShadow: !PRESET_COLORS.some(p => p.value.toLowerCase() === darkAccent.toLowerCase()) ? '0 0 0 2px var(--bg-primary)' : 'none',
-                  overflow: 'hidden', cursor: 'pointer',
-                  background: 'conic-gradient(from 0deg, red, yellow, green, cyan, blue, magenta, red)',
-                  transform: !PRESET_COLORS.some(p => p.value.toLowerCase() === darkAccent.toLowerCase()) ? 'scale(1.1)' : 'scale(1)',
-                  transition: 'all 0.15s ease',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}
-                title="Custom color"
-              >
-                {!PRESET_COLORS.some(p => p.value.toLowerCase() === darkAccent.toLowerCase()) && (
-                  <span style={{ 
-                    position: 'absolute', zIndex: 1, pointerEvents: 'none', 
-                    width: 6, height: 6, borderRadius: '50%', background: '#fff',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.5)'
-                  }} />
-                )}
-                <input 
-                  type="color" 
-                  value={darkAccent} 
-                  onChange={(e) => setDarkAccent(e.target.value)} 
-                  style={{ position: 'absolute', inset: -4, width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', opacity: 0, cursor: 'pointer' }}
-                />
-              </div>
-              <span style={{ fontSize: 12, color: 'var(--text-muted)', marginLeft: 4 }}>
-                {darkAccent.toUpperCase()}
-              </span>
-            </div>
-          </div>
         </div>
 
         {/* Help & Support Card */}

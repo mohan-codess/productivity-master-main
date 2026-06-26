@@ -37,7 +37,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Toolti
 }
 
 // Fallback palette when category.color is missing or near-grey.
-const PALETTE = ['#7C3AED', '#F472B6', '#06B6D4', '#F59E0B', '#10B981', '#3B82F6', '#EF4444', '#8B5CF6'];
+const PALETTE = ['#0071e3', '#F472B6', '#06B6D4', '#F59E0B', '#10B981', '#3B82F6', '#EF4444', '#8B5CF6'];
 
 function resolveColor(raw: string | undefined | null, index: number): string {
   if (!raw || !/^#[0-9A-Fa-f]{6}$/.test(raw)) return PALETTE[index % PALETTE.length];
