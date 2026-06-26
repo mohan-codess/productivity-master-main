@@ -1,0 +1,955 @@
+diff --git a/components/analytics/CalendarHeatmap.tsx b/components/analytics/CalendarHeatmap.tsx
+index d0e8492..e452d84 100644
+--- a/components/analytics/CalendarHeatmap.tsx
++++ b/components/analytics/CalendarHeatmap.tsx
+@@ -99,7 +99,7 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, color }: CalendarH
+ 
+   return (
+     <div ref={scrollRef} style={{ overflowX: 'auto', paddingBottom: 8 }}>
+-      <style>{`.hf-cal-cell { transition: all 0.2s ease; } .hf-cal-cell:hover { transform: scale(1.5); position: relative; z-index: 10; box-shadow: 0 2px 8px rgba(145, 145, 145,0.3); }`}</style>
++      <style>{`.hf-cal-cell { transition: all 0.2s ease; } .hf-cal-cell:hover { transform: scale(1.5); position: relative; z-index: 10; box-shadow: 0 2px 8px rgba(145, 145, 145,0.3); } @keyframes heatmapPulse { 0% { filter: brightness(1); } 50% { filter: brightness(1.2); } 100% { filter: brightness(1); } } .hf-cal-cell-active { animation: heatmapPulse 3s infinite ease-in-out; }`}</style>
+       <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 8, minWidth: 'max-content' }}>
+         {/* Month labels */}
+         <div style={{ display: 'flex', paddingLeft: DAY_LABEL_WIDTH, gap: CELL_GAP }}>
+@@ -148,23 +148,24 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, color }: CalendarH
+                 return (
+                   <div
+                     key={wi}
+                   />
+                 );
+               }
+               return (
+                 <div
+                   key={wi}
+-                  className="hf-cal-cell"
++                  className={`hf-cal-cell ${cell.percentage > 0 ? 'hf-cal-cell-active' : ''}`}
+                   title={`${cell.date}: ${cell.percentage}% complete`}
+                   style={{
+                     width: CELL_SIZE,
+                     height: CELL_SIZE,
+                     background: getColor(cell.percentage, baseColor),
+                     flexShrink: 0,
+                     cursor: 'default',
+                     border: cell.percentage > 0 ? '1px solid color-mix(in srgb, var(--text-primary) 10%, transparent)' : '1px solid var(--border-subtle)',
++                    animationDelay: `${(wi + dow) * 0.05}s`,
+                   }}
+                 />
+               );
+@@ -181,7 +182,7 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, color }: CalendarH
+               style={{
+                 width: CELL_SIZE,
+                 height: CELL_SIZE,
+                 background: getColor(pct, baseColor),
+                 border: pct > 0 ? '1px solid color-mix(in srgb, var(--text-primary) 10%, transparent)' : '1px solid var(--border-subtle)',
+               }}
+diff --git a/components/analytics/CompletionChart.tsx b/components/analytics/CompletionChart.tsx
+index 74534e8..3ec8373 100644
+--- a/components/analytics/CompletionChart.tsx
++++ b/components/analytics/CompletionChart.tsx
+@@ -1,6 +1,7 @@
+ 'use client';
+ 
+ import React, { useState, memo } from 'react';
++import { motion } from 'framer-motion';
+ import {
+   AreaChart,
+   Area,
+@@ -48,7 +49,7 @@ function CustomTooltip({
+       style={{
+         background: 'var(--bg-card)',
+         border: '1px solid var(--border-default)',
+         padding: '12px 16px',
+         boxShadow: '0 4px 16px rgba(0, 0, 0,0.15)',
+       }}
+@@ -114,7 +115,7 @@ const CompletionChart = memo(function CompletionChart({ data, onRangeChange, cur
+               onClick={() => handleRange(days)}
+               style={{
+                 padding: '6px 14px',
+                 border: active ? '1px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
+                 background: active ? 'var(--accent-primary)' : 'transparent',
+                 color: active ? 'var(--accent-on-primary)' : 'var(--text-muted)',
+@@ -131,44 +132,50 @@ const CompletionChart = memo(function CompletionChart({ data, onRangeChange, cur
+       </div>
+ 
+       {/* Chart */}
+-      <ResponsiveContainer width="100%" height={240}>
+-        <AreaChart data={data} margin={{ top: 8, right: 5, left: -20, bottom: 0 }}>
+-          <defs>
+-            <linearGradient id="completionGradient" x1="0" y1="0" x2="0" y2="1">
+-              <stop offset="5%" stopColor={accentHex} stopOpacity={0.4} />
+-              <stop offset="95%" stopColor={accentHex} stopOpacity={0.02} />
+-            </linearGradient>
+-          </defs>
+-          <CartesianGrid strokeDasharray="4 4" stroke="rgba(255, 255, 255,0.06)" vertical={false} />
+-          <XAxis
+-            dataKey="date"
+-            tickFormatter={formatXAxis}
+-            ticks={ticks}
+-            tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: "'IBM Plex Sans'", fontWeight: 500 }}
+-            axisLine={false}
+-            tickLine={false}
+-            dy={8}
+-          />
+-          <YAxis
+-            domain={[0, 100]}
+-            tickFormatter={(v) => `${v}%`}
+-            tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: "'IBM Plex Sans'", fontWeight: 500 }}
+-            axisLine={false}
+-            tickLine={false}
+-          />
+-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: accentHex, strokeOpacity: 0.3, strokeWidth: 2 }} />
+-          <Area
+-            type="monotone"
+-            dataKey="percentage"
+-            stroke={accentHex}
+-            strokeWidth={3}
+-            strokeLinecap="round"
+-            fill="url(#completionGradient)"
+-            dot={false}
+-            activeDot={{ r: 7, fill: accentHex, stroke: 'var(--bg-primary)', strokeWidth: 3 }}
+-          />
+-        </AreaChart>
+-      </ResponsiveContainer>
++      <motion.div animate={{ opacity: [0.85, 1, 0.85] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} style={{ width: '100%' }}>
++        <ResponsiveContainer width="100%" height={240}>
++          <AreaChart data={data} margin={{ top: 8, right: 5, left: -20, bottom: 0 }}>
++            <defs>
++              <linearGradient id="completionGradient" x1="0" y1="0" x2="0" y2="1">
++                <stop offset="5%" stopColor={accentHex} stopOpacity={0.6} />
++                <stop offset="95%" stopColor={accentHex} stopOpacity={0.0} />
++              </linearGradient>
++            </defs>
++            <CartesianGrid strokeDasharray="4 4" stroke="rgba(255, 255, 255,0.06)" vertical={false} />
++            <XAxis
++              dataKey="date"
++              tickFormatter={formatXAxis}
++              ticks={ticks}
++              tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: "'IBM Plex Sans'", fontWeight: 500 }}
++              axisLine={false}
++              tickLine={false}
++              dy={8}
++            />
++            <YAxis
++              domain={[0, 100]}
++              tickFormatter={(v) => `${v}%`}
++              tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: "'IBM Plex Sans'", fontWeight: 500 }}
++              axisLine={false}
++              tickLine={false}
++            />
++            <Tooltip content={<CustomTooltip />} cursor={{ stroke: accentHex, strokeOpacity: 0.3, strokeWidth: 2 }} />
++            <Area
++              type="monotone"
++              dataKey="percentage"
++              stroke={accentHex}
++              strokeWidth={4}
++              strokeLinecap="round"
++              fill="url(#completionGradient)"
++              style={{ filter: `drop-shadow(0px 4px 5px ${accentHex}4D)` }}
++              dot={false}
++              activeDot={{ r: 7, fill: accentHex, stroke: 'var(--bg-primary)', strokeWidth: 3 }}
++              isAnimationActive={true}
++              animationDuration={1500}
++              animationEasing="ease-out"
++            />
++          </AreaChart>
++        </ResponsiveContainer>
++      </motion.div>
+     </div>
+   );
+ });
+diff --git a/components/dashboard/FitnessSummary.tsx b/components/dashboard/FitnessSummary.tsx
+index f12c0db..db31b3f 100644
+--- a/components/dashboard/FitnessSummary.tsx
++++ b/components/dashboard/FitnessSummary.tsx
+@@ -66,8 +66,8 @@ const GLASS_NESTED_PURPLE: React.CSSProperties = {
+   boxShadow: 'var(--glass-shadow-purple)',
+ };
+ 
+-const RADIUS = 100;
+-const STROKE = 9;
++const RADIUS = 75;
++const STROKE = 7;
+ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+ 
+ function CircularProgress({
+@@ -90,7 +90,7 @@ function CircularProgress({
+       style={{
+         marginTop: 0,
+         padding: '20px',
+         display: 'flex',
+         flexDirection: 'column',
+         alignItems: 'center',
+@@ -111,7 +111,7 @@ function CircularProgress({
+         </div>
+         <div style={{
+           padding: '6px 14px',
+           background: 'var(--surface-tint)',
+         }}>
+           <span style={{ fontSize: 13, fontWeight: 700, color: TEXT_DARK }}>{pct}%</span>
+@@ -119,15 +119,25 @@ function CircularProgress({
+       </div>
+ 
+       {/* Ring */}
+-      <div style={{ position: 'relative', width: size, height: size }}>
++      <motion.div
++        animate={{ scale: [1, 1.03, 1] }}
++        transition={{ duration: 4, ease: 'easeInOut', repeat: Infinity }}
++        style={{ position: 'relative', width: size, height: size }}
++      >
+         <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
++          <defs>
++            <linearGradient id="circleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
++              <stop offset="0%" stopColor={accentHex} stopOpacity={1} />
++              <stop offset="100%" stopColor={accentHex} stopOpacity={0.7} />
++            </linearGradient>
++          </defs>
+           {/* Track */}
+           <circle
+             cx={size / 2}
+             cy={size / 2}
+             r={RADIUS}
+             fill="none"
+-            style={{ stroke: `color-mix(in srgb, ${accentHex} 22%, transparent)` }}
++            style={{ stroke: `color-mix(in srgb, ${accentHex} 16%, transparent)` }}
+             strokeWidth={STROKE}
+           />
+           {/* Progress arc */}
+@@ -136,13 +146,14 @@ function CircularProgress({
+             cy={size / 2}
+             r={RADIUS}
+             fill="none"
+-            stroke={accentHex}
++            stroke="url(#circleGrad)"
++            style={{ filter: `drop-shadow(0px 4px 4px ${accentHex}66)` }}
+             strokeWidth={STROKE}
+             strokeLinecap="round"
+             strokeDasharray={CIRCUMFERENCE}
+             initial={{ strokeDashoffset: CIRCUMFERENCE }}
+             animate={{ strokeDashoffset: offset }}
+-            transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }}
++            transition={{ type: 'spring', bounce: 0.3, duration: 1.5, delay: 0.2 }}
+           />
+         </svg>
+         {/* Centre label */}
+@@ -162,26 +173,35 @@ function CircularProgress({
+             complete
+           </span>
+         </div>
+-      </div>
++      </motion.div>
+ 
+       {/* Per-habit dots */}
+       {total > 0 && (
+         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center', width: '100%', marginTop: 28 }}>
+-          {Array.from({ length: total }, (_, i) => (
+-            <motion.div
+-              key={i}
+-              initial={{ scale: 0 }}
+-              animate={{ scale: 1 }}
+-              transition={{ duration: 0.2, delay: 0.6 + i * 0.05 }}
+-              style={{
+-                width: 12,
+-                height: 12,
+-                background: i < completed ? accentHex : 'transparent',
+-                border: `2px solid ${i < completed ? accentHex : `color-mix(in srgb, ${accentHex} 30%, transparent)`}`,
+-              }}
+-            />
+-          ))}
++          {Array.from({ length: total }, (_, i) => {
++            const isDone = i < completed;
++            return (
++              <motion.div
++                key={i}
++                initial={{ scale: 0, opacity: 0 }}
++                animate={{ scale: 1, opacity: 1 }}
++                transition={{ type: 'spring', bounce: 0.5, duration: 0.6, delay: 0.4 + i * 0.05 }}
++              >
++                <motion.div
++                  animate={isDone ? { scale: [1, 1.15, 1] } : {}}
++                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: i * 0.15 }}
++                  style={{
++                    width: 12,
++                    height: 12,
++                    background: isDone ? accentHex : 'transparent',
++                    border: `2px solid ${isDone ? accentHex : `color-mix(in srgb, ${accentHex} 30%, transparent)`}`,
++                    boxShadow: isDone ? `0 2px 8px color-mix(in srgb, ${accentHex} 40%, transparent)` : 'none',
++                  }}
++                />
++              </motion.div>
++            );
++          })}
+         </div>
+       )}
+     </motion.div>
+@@ -237,7 +257,7 @@ function HabitRow({
+         padding: '14px 16px',
+         ...(done && !bad ? GLASS_PURPLE : GLASS_SM),
+         ...(bad ? { border: `1px solid ${done ? 'rgba(248, 113, 113, 0.35)' : 'rgba(248, 113, 113, 0.18)'}` } : null),
+         cursor: 'pointer',
+         width: '100%',
+         minWidth: 0,
+@@ -251,7 +271,7 @@ function HabitRow({
+       <div style={{
+         width: 44,
+         height: 44,
+         background: accentLight,
+         display: 'flex',
+         alignItems: 'center',
+@@ -308,19 +328,6 @@ function HabitRow({
+         {done && <CheckIcon />}
+       </div>
+ 
+-      {/* Animated progress bar — fills with the habit's color on completion.
+-         Lives in the shared row, so every habit (incl. brand-new ones) gets it. */}
+-      <div style={{
+-        position: 'absolute', left: 0, right: 0, bottom: 0, height: 4,
+-        background: 'rgba(127, 127, 127,0.10)',
+-      }}>
+-        <motion.div
+-          initial={{ width: 0 }}
+-          animate={{ width: done ? '100%' : '0%' }}
+-          transition={{ duration: 0.55, delay: 0.1 + index * 0.05, ease: [0.22, 1, 0.36, 1] }}
+-        />
+-      </div>
+     </motion.div>
+   );
+ }
+@@ -330,7 +337,7 @@ function StatPill({ label, value, accent, color }: { label: string; value: strin
+   return (
+     <div style={{
+       ...(accent ? { ...GLASS_NESTED_PURPLE, background: `color-mix(in srgb, ${c} 14%, transparent)` } : GLASS_NESTED),
+       padding: '14px 16px',
+     }}>
+       <p style={{ margin: 0, fontSize: 10, fontWeight: 700, color: TEXT_MUTED, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+@@ -532,7 +539,7 @@ function HabitDetailSheet({
+             pointerEvents: 'auto',
+             width: '100%', maxWidth: 480,
+             background: 'var(--glass-bg-sheet)',
+             maxHeight: '90dvh',
+             overflowY: 'auto',
+             padding: '24px 20px 32px',
+@@ -543,7 +550,7 @@ function HabitDetailSheet({
+           {/* Header */}
+           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 0, marginBottom: 22 }}>
+             <div style={{
+               background: PURPLE_LIGHT,
+               display: 'flex', alignItems: 'center', justifyContent: 'center',
+               flexShrink: 0, overflow: 'hidden',
+@@ -561,7 +568,7 @@ function HabitDetailSheet({
+                   style={{
+                     width: '100%', boxSizing: 'border-box',
+                     background: 'var(--input-bg)', border: `1.5px solid ${PURPLE}`,
+                     fontSize: 17, fontWeight: 700, color: TEXT_DARK,
+                     outline: 'none', fontFamily: 'inherit',
+                   }}
+@@ -621,7 +628,7 @@ function HabitDetailSheet({
+ 
+           {/* Edit mode — icon picker + save */}
+           {editMode && (
+               <p style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                 Notes
+               </p>
+@@ -634,7 +641,7 @@ function HabitDetailSheet({
+                 style={{
+                   width: '100%', boxSizing: 'border-box', resize: 'vertical', minHeight: 60,
+                   background: 'var(--input-bg)', border: `1.5px solid var(--input-border)`,
+                   fontSize: 14, color: TEXT_DARK, outline: 'none', fontFamily: 'inherit', lineHeight: 1.5,
+                 }}
+                 onFocus={(e) => { e.target.style.borderColor = PURPLE; }}
+@@ -648,7 +655,7 @@ function HabitDetailSheet({
+                   const active = editIcon === ic;
+                   return (
+                     <button key={ic} onClick={() => setEditIcon(ic)} title={ic} style={{
+                       background: PURPLE_LIGHT,
+                       display: 'flex', alignItems: 'center', justifyContent: 'center',
+                       cursor: 'pointer',
+@@ -671,7 +678,7 @@ function HabitDetailSheet({
+                 onClick={saveEdit}
+                 disabled={saving}
+                 style={{
+                   background: saving ? 'var(--accent-light)' : PURPLE,
+                   color: 'var(--accent-on-primary)', fontSize: 15, fontWeight: 700,
+                   cursor: saving ? 'default' : 'pointer',
+@@ -685,7 +692,7 @@ function HabitDetailSheet({
+ 
+           {/* Notes (read mode) */}
+           {!editMode && (
+               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: habit.description ? 8 : 0 }}>
+                 <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                   Notes
+@@ -718,7 +725,7 @@ function HabitDetailSheet({
+           </div>
+ 
+           {/* Weekly report — this habit, last 7 days */}
+             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', padding: '0 4px', marginBottom: 6 }}>
+               <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                 Weekly report
+@@ -731,7 +738,7 @@ function HabitDetailSheet({
+           </div>
+ 
+           {/* Calendar */}
+             {/* Month header + navigation */}
+             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+               <button
+@@ -816,7 +823,7 @@ function HabitDetailSheet({
+                             style={{
+                               flex: '1 1 0', minWidth: 0,
+                               height: CELL_H,
+                               background: bg,
+                               border: cell.isToday ? `2px solid ${PURPLE}` : '2px solid transparent',
+                               boxShadow: cell.completed ? `0 2px 6px ${PURPLE_MID}` : 'none',
+@@ -846,7 +853,7 @@ function HabitDetailSheet({
+                     ].map(({ bg, label, txt, border }) => (
+                       <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                         <div style={{
+                           background: bg, border: border ?? 'none',
+                           display: 'flex', alignItems: 'center', justifyContent: 'center',
+                           fontSize: 9, fontWeight: 700, color: txt,
+@@ -861,20 +868,20 @@ function HabitDetailSheet({
+           </div>
+ 
+           {/* Completion rate bar */}
+             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+               <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: TEXT_DARK }}>
+                 {MONTHS[calMonth]} Completion
+               </p>
+               <span style={{ fontSize: 13, fontWeight: 700, color: PURPLE }}>{monthRate}%</span>
+             </div>
+               <motion.div
+                 key={`${calYear}-${calMonth}`}
+                 initial={{ width: 0 }}
+                 animate={{ width: `${monthRate}%` }}
+                 transition={{ duration: 0.7, ease: 'easeOut' }}
+               />
+             </div>
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '8px 0 0', gap: 12 }}>
+@@ -892,7 +899,7 @@ function HabitDetailSheet({
+             <button
+               onClick={() => setConfirmDelete(true)}
+               style={{
+                 background: 'rgba(239, 68, 68, 0.1)',
+                 color: '#EF4444', fontSize: 14, fontWeight: 700,
+                 cursor: 'pointer', fontFamily: 'inherit',
+@@ -901,7 +908,7 @@ function HabitDetailSheet({
+               Delete Habit
+             </button>
+           ) : (
+               <p style={{ margin: '0 0 12px', fontSize: 13, color: '#6a6a6a', fontWeight: 600, textAlign: 'center' }}>
+                 Delete &quot;{habit.name}&quot;? This removes all history and cannot be undone.
+               </p>
+@@ -909,7 +916,7 @@ function HabitDetailSheet({
+                 <button
+                   onClick={() => setConfirmDelete(false)}
+                   style={{
+                     background: 'rgba(104, 104, 104, 0.08)', color: '#6a6a6a', fontSize: 14, fontWeight: 700,
+                     cursor: 'pointer', fontFamily: 'inherit',
+                   }}
+@@ -920,7 +927,7 @@ function HabitDetailSheet({
+                   onClick={handleDelete}
+                   disabled={deleting}
+                   style={{
+                     background: '#EF4444', color: '#fff', fontSize: 14, fontWeight: 700,
+                     cursor: deleting ? 'default' : 'pointer', fontFamily: 'inherit',
+                     opacity: deleting ? 0.7 : 1,
+@@ -1028,7 +1035,7 @@ type TargetType = 'boolean' | 'duration';
+ 
+ function SectionCard({ children }: { children: React.ReactNode }) {
+   return (
+       {children}
+     </div>
+   );
+@@ -1102,7 +1109,7 @@ function AddHabitSheet({ onSuccess, onClose, initialBad = false }: { onSuccess:
+   const inputStyle: React.CSSProperties = {
+     width: '100%', boxSizing: 'border-box',
+     background: 'var(--input-bg)', border: `1.5px solid var(--input-border)`,
+     fontSize: 16, fontWeight: 600, color: TEXT_DARK,
+     outline: 'none', fontFamily: 'inherit',
+     transition: 'border-color 0.15s',
+@@ -1130,7 +1137,7 @@ function AddHabitSheet({ onSuccess, onClose, initialBad = false }: { onSuccess:
+             pointerEvents: 'auto',
+             width: '100%', maxWidth: 480,
+             background: 'var(--glass-bg-sheet)',
+             maxHeight: '90dvh', overflowY: 'auto',
+             padding: '24px 16px 32px',
+             fontFamily: "system-ui, -apple-system, sans-serif",
+@@ -1160,7 +1167,7 @@ function AddHabitSheet({ onSuccess, onClose, initialBad = false }: { onSuccess:
+               type="button"
+               onClick={() => { setIsBadHabit(false); if (isBadHabit) { setIcon('circle-check'); setColor(accentHex); } }}
+               style={{
+                 background: !isBadHabit ? accentHex : 'var(--bg-elevated)',
+                 color: !isBadHabit ? '#fff' : TEXT_MUTED,
+                 fontSize: 13, fontWeight: !isBadHabit ? 700 : 500,
+@@ -1176,7 +1183,7 @@ function AddHabitSheet({ onSuccess, onClose, initialBad = false }: { onSuccess:
+               type="button"
+               onClick={() => { setIsBadHabit(true); if (!isBadHabit) { setIcon('ban'); setColor(RED); } }}
+               style={{
+                 background: isBadHabit ? RED : 'var(--bg-elevated)',
+                 color: isBadHabit ? '#fff' : TEXT_MUTED,
+                 fontSize: 13, fontWeight: isBadHabit ? 700 : 500,
+@@ -1228,7 +1235,7 @@ function AddHabitSheet({ onSuccess, onClose, initialBad = false }: { onSuccess:
+                 const active = icon === ic;
+                 return (
+                   <button key={ic} onClick={() => setIcon(ic)} title={ic} style={{
+                     border: `1.5px solid ${active ? PURPLE : 'transparent'}`,
+                     background: active ? 'var(--surface-tint-mid)' : PURPLE_LIGHT,
+                     display: 'flex', alignItems: 'center', justifyContent: 'center',
+@@ -1257,10 +1264,10 @@ function AddHabitSheet({ onSuccess, onClose, initialBad = false }: { onSuccess:
+           {/* ── Frequency ── */}
+           <SectionCard>
+             <FieldLabel>How often</FieldLabel>
+               {freqTabs.map(({ key, label }) => (
+                 <button key={key} onClick={() => setFreqType(key)} style={{
+                   background: freqType === key ? PURPLE : 'transparent',
+                   color: freqType === key ? '#fff' : TEXT_MUTED,
+                   fontSize: 12, fontWeight: freqType === key ? 700 : 500,
+@@ -1315,7 +1322,7 @@ function AddHabitSheet({ onSuccess, onClose, initialBad = false }: { onSuccess:
+             <div style={{ display: 'flex', gap: 10, marginBottom: targetType === 'duration' ? 16 : 0 }}>
+               {(['boolean', 'duration'] as TargetType[]).map((t) => (
+                 <button key={t} onClick={() => setTargetType(t)} style={{
+                   background: targetType === t ? color : 'var(--bg-elevated)',
+                   color: targetType === t ? '#fff' : TEXT_MUTED,
+                   fontSize: 13, fontWeight: targetType === t ? 700 : 500,
+@@ -1349,7 +1356,7 @@ function AddHabitSheet({ onSuccess, onClose, initialBad = false }: { onSuccess:
+ 
+           {/* Error */}
+           {error && (
+               <p style={{ margin: 0, fontSize: 13, color: '#6a6a6a', fontWeight: 600 }}>{error}</p>
+             </div>
+           )}
+@@ -1359,7 +1366,7 @@ function AddHabitSheet({ onSuccess, onClose, initialBad = false }: { onSuccess:
+             onClick={submit}
+             disabled={loading}
+             style={{
+               background: loading ? 'var(--accent-light)' : 'var(--accent-primary)',
+               color: 'var(--accent-on-primary)', fontSize: 16, fontWeight: 700,
+               cursor: loading ? 'default' : 'pointer',
+@@ -1386,7 +1393,7 @@ function KpiCard({
+     <div style={{
+       background: 'var(--bg-card)',
+       border: '1px solid var(--border-default)',
+       padding: '18px 20px',
+       display: 'flex', flexDirection: 'column', gap: 16,
+       minWidth: 0,
+@@ -1396,7 +1403,7 @@ function KpiCard({
+           {label}
+         </span>
+         <div style={{
+           background: 'var(--surface-tint)', border: '1px solid var(--border-subtle)',
+           display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)',
+         }}>
+@@ -1428,7 +1435,7 @@ function DashCard({
+     <div style={{
+       background: 'var(--bg-card)',
+       border: '1px solid var(--border-default)',
+       padding: 20,
+       minWidth: 0,
+       ...style,
+@@ -1455,7 +1462,7 @@ function NavItem({
+       onClick={onClick}
+       style={{
+         width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+         background: active ? 'var(--accent-primary)' : 'transparent',
+         color: active ? 'var(--accent-on-primary)' : 'var(--text-secondary)',
+         fontSize: 14, fontWeight: active ? 700 : 600, fontFamily: 'inherit', textAlign: 'left',
+@@ -1487,7 +1494,7 @@ function NavGroup({
+         onClick={onToggle}
+         style={{
+           width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+           background: '#ffffff',
+           color: '#1a1a1a',
+           fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit', textAlign: 'left',
+@@ -1547,7 +1554,7 @@ function SubNavItem({
+       onClick={onClick}
+       style={{
+         width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+         background: active ? 'rgba(255,255,255,0.10)' : 'transparent',
+         color: active ? 'var(--text-primary)' : 'var(--text-muted)',
+         fontSize: 13, fontWeight: active ? 600 : 400, fontFamily: 'inherit', textAlign: 'left',
+@@ -1586,6 +1593,8 @@ export default function FitnessSummary({
+   const [loadingDate, setLoadingDate] = useState(false);
+   const [habitNavOpen, setHabitNavOpen] = useState(true);
+   const [tripNavOpen, setTripNavOpen] = useState(false);
++  const [showAllHabits, setShowAllHabits] = useState(false);
++  const [showAllBadHabits, setShowAllBadHabits] = useState(false);
+ 
+   // ── Theme (sidebar/topbar quick toggle) ──
+   // Reflect the theme actually applied to <html>; re-sync after the profile
+@@ -1763,7 +1772,7 @@ export default function FitnessSummary({
+                 onClick={() => setAddOpen(true)}
+                 style={{
+                   display: 'inline-flex', alignItems: 'center', gap: 7,
+                   background: 'var(--accent-primary)', color: 'var(--accent-on-primary)',
+                   fontSize: 14, fontWeight: 700, fontFamily: 'inherit',
+                   justifyContent: 'center',
+@@ -1794,7 +1803,7 @@ export default function FitnessSummary({
+               !isViewingToday ? (
+                 <button
+                   onClick={() => selectDate(todayString())}
+                 >
+                   Jump to today
+                 </button>
+@@ -1878,20 +1887,36 @@ export default function FitnessSummary({
+                 }
+               >
+                 {displayHabits.length === 0 ? (
+                     <p style={{ margin: '0 0 12px', fontSize: 14, color: 'var(--text-muted)' }}>No habits yet.</p>
+                     <button
+                       onClick={() => setAddOpen(true)}
+                     >
+                       <Plus size={15} strokeWidth={2.6} /> Add your first habit
+                     </button>
+                   </div>
+                 ) : (
+                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+-                    {displayHabits.map((h, i) => (
++                    {(showAllHabits ? displayHabits : displayHabits.slice(0, 2)).map((h, i) => (
+                       <HabitRow key={h.id} habit={h} index={i} onToggle={handleToggle} onOpen={setSelectedId} />
+                     ))}
++                    {displayHabits.length > 2 && (
++                      <button
++                        onClick={() => setShowAllHabits(!showAllHabits)}
++                        style={{
++                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
++                          background: 'var(--surface-tint)', color: 'var(--text-primary)',
++                          fontSize: 13, fontWeight: 700, cursor: 'pointer',
++                          transition: 'background 0.15s ease',
++                          marginTop: 4,
++                        }}
++                      >
++                        {showAllHabits ? 'Show less' : `Show all ${displayHabits.length} habits`}
++                        <ChevronDown size={14} style={{ transform: showAllHabits ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
++                      </button>
++                    )}
+                   </div>
+                 )}
+               </DashCard>
+@@ -1911,20 +1936,24 @@ export default function FitnessSummary({
+                       return (
+                         <div key={date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+                           <div style={{
+                             background: 'var(--surface-tint)',
+                             position: 'relative', overflow: 'hidden',
+                           }}>
+                             <motion.div
+-                              initial={{ height: 0 }}
+-                              animate={{ height: barH }}
+-                              transition={{ duration: 0.5, delay: 0.08 + i * 0.05, ease: 'easeOut' }}
++                              initial={{ height: 0, opacity: 0 }}
++                              animate={{ height: barH, opacity: isToday ? [0.6, 1, 0.6] : 1 }}
++                              transition={{
++                                height: { type: 'spring', bounce: 0.4, duration: 0.8, delay: 0.1 + i * 0.08 },
++                                opacity: isToday ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.5 }
++                              }}
+                               style={{
+                                 position: 'absolute', bottom: 0, left: 0, right: 0,
+                                 background: isToday
+                                   ? 'var(--accent-primary)'
+-                                  : 'color-mix(in srgb, var(--accent-primary) 52%, transparent)',
++                                  : 'color-mix(in srgb, var(--accent-primary) 60%, transparent)',
++                                boxShadow: isToday ? '0 -4px 12px color-mix(in srgb, var(--accent-primary) 40%, transparent)' : 'none',
+                               }}
+                             />
+                           </div>
+@@ -1950,7 +1979,7 @@ export default function FitnessSummary({
+                       <span style={{
+                         position: 'absolute', left: 0, top: -9,
+                         fontSize: 10, fontWeight: 700, color: 'var(--text-muted)',
+                       }}>
+                         Avg.{avgPct}%
+                       </span>
+@@ -1972,7 +2001,7 @@ export default function FitnessSummary({
+                     <button
+                       onClick={() => { setAddBadDefault(true); setAddOpen(true); }}
+                       style={{
+                         background: RED_LIGHT, color: RED_SOFT,
+                         fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                         display: 'flex', alignItems: 'center', gap: 5,
+@@ -1999,7 +2028,7 @@ export default function FitnessSummary({
+                     <button
+                       onClick={() => { setAddBadDefault(true); setAddOpen(true); }}
+                       style={{
+                         background: RED, color: '#fff',
+                         fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                         display: 'inline-flex', alignItems: 'center', gap: 6,
+@@ -2011,9 +2040,25 @@ export default function FitnessSummary({
+                   </div>
+                 ) : (
+                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+-                    {displayBadHabits.map((h, i) => (
++                    {(showAllBadHabits ? displayBadHabits : displayBadHabits.slice(0, 2)).map((h, i) => (
+                       <HabitRow key={h.id} habit={h} index={i} onToggle={handleToggle} onOpen={setSelectedId} bad />
+                     ))}
++                    {displayBadHabits.length > 2 && (
++                      <button
++                        onClick={() => setShowAllBadHabits(!showAllBadHabits)}
++                        style={{
++                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
++                          background: 'rgba(248, 113, 113, 0.1)', color: RED,
++                          fontSize: 13, fontWeight: 700, cursor: 'pointer',
++                          transition: 'background 0.15s ease',
++                          marginTop: 4,
++                        }}
++                      >
++                        {showAllBadHabits ? 'Show less' : `Show all ${displayBadHabits.length} habits`}
++                        <ChevronDown size={14} style={{ transform: showAllBadHabits ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
++                      </button>
++                    )}
+                   </div>
+                 )}
+               </DashCard>
+diff --git a/components/dashboard/ProgressChart.tsx b/components/dashboard/ProgressChart.tsx
+index 604c469..7058d71 100644
+--- a/components/dashboard/ProgressChart.tsx
++++ b/components/dashboard/ProgressChart.tsx
+@@ -68,18 +68,18 @@ function ChartSkeleton() {
+     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+         <div>
+         </div>
+       </div>
+       <div
+         className="shimmer"
+         style={{
+           height: 200,
+           width: '100%',
+           opacity: 0.4,
+           background: 'linear-gradient(90deg, transparent 0%, var(--bg-tertiary) 50%, transparent 100%)',
+           backgroundSize: '200% 100%',
+@@ -250,7 +250,7 @@ export default function ProgressChart({ data, habitCount }: ProgressChartProps)
+             display: 'flex',
+             background: 'var(--bg-tertiary)',
+             border: '1px solid var(--border-subtle)',
+             padding: '3px',
+             gap: '2px',
+           }}
+@@ -264,7 +264,7 @@ export default function ProgressChart({ data, habitCount }: ProgressChartProps)
+                 onClick={() => setRange(r)}
+                 style={{
+                   padding: '5px 12px',
+                   border: 'none',
+                   background: active ? 'var(--bg-secondary)' : 'transparent',
+                   color: active ? 'var(--text-primary)' : 'var(--text-muted)',
+@@ -384,8 +384,8 @@ export default function ProgressChart({ data, habitCount }: ProgressChartProps)
+                 d={areaPath}
+                 fill="url(#pc-fill)"
+                 initial={{ opacity: 0 }}
+-                animate={{ opacity: 1 }}
+-                transition={{ duration: 0.4 }}
++                animate={{ opacity: [0.4, 1, 0.4] }}
++                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+               />
+             )}
+ 
+diff --git a/components/dashboard/WeeklyReportChart.tsx b/components/dashboard/WeeklyReportChart.tsx
+index 238e03c..a07738d 100644
+--- a/components/dashboard/WeeklyReportChart.tsx
++++ b/components/dashboard/WeeklyReportChart.tsx
+@@ -34,7 +34,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Toolti
+       style={{
+         background: 'var(--bg-card)',
+         border: '1px solid var(--border-default)',
+         padding: '10px 14px',
+       }}
+     >
+@@ -85,8 +85,8 @@ const WeeklyReportChart = memo(function WeeklyReportChart({
+         <AreaChart width={width} height={CHART_HEIGHT} data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+           <defs>
+             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+-              <stop offset="5%" stopColor={c} stopOpacity={0.35} />
+-              <stop offset="95%" stopColor={c} stopOpacity={0.02} />
++              <stop offset="5%" stopColor={c} stopOpacity={0.6} />
++              <stop offset="95%" stopColor={c} stopOpacity={0.0} />
+             </linearGradient>
+           </defs>
+           <CartesianGrid strokeDasharray="4 4" stroke={c} strokeOpacity={0.14} vertical={false} />
+@@ -120,11 +120,15 @@ const WeeklyReportChart = memo(function WeeklyReportChart({
+             type="monotone"
+             dataKey="pct"
+             stroke={c}
+-            strokeWidth={3}
++            strokeWidth={4}
+             strokeLinecap="round"
+             fill={`url(#${gradientId})`}
+-            dot={{ r: 3, fill: c, strokeWidth: 0 }}
+-            activeDot={{ r: 6, fill: c, stroke: 'var(--bg-primary)', strokeWidth: 3 }}
++            style={{ filter: `drop-shadow(0px 4px 5px ${c}4D)` }}
++            dot={{ r: 4, fill: c, strokeWidth: 0 }}
++            activeDot={{ r: 7, fill: c, stroke: 'var(--bg-primary)', strokeWidth: 3 }}
++            isAnimationActive={true}
++            animationDuration={1200}
++            animationEasing="ease-out"
+           />
+         </AreaChart>
+       ) : null}
+diff --git a/components/trip/AnalyticsCharts.tsx b/components/trip/AnalyticsCharts.tsx
+index 04ce807..92d77eb 100644
+--- a/components/trip/AnalyticsCharts.tsx
++++ b/components/trip/AnalyticsCharts.tsx
+@@ -51,7 +51,7 @@ function TooltipContent({ active, payload, label }: any) {
+   if (!active || !payload?.length) return null;
+   const name = label ?? payload[0]?.payload?.name ?? payload[0]?.name;
+   return (
+       <p style={{ margin: 0, fontWeight: 600, color: 'var(--text-primary)' }}>{name}</p>
+       <p style={{ margin: '2px 0 0', color: 'var(--text-muted)' }}>{formatINR(Number(payload[0]?.value ?? 0))}</p>
+     </div>
+@@ -78,7 +78,7 @@ function CircularShareProgress({
+   return (
+     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, minWidth: 120 }}>
+       {/* SVG Ring */}
+-      <div style={{ position: 'relative', width: size, height: size }}>
++      <motion.div animate={{ scale: [1, 1.03, 1] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} style={{ position: 'relative', width: size, height: size }}>
+         <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+           {/* Background Track */}
+           <circle
+@@ -128,7 +128,7 @@ function CircularShareProgress({
+             share
+           </span>
+         </div>
+-      </div>
++      </motion.div>
+       {/* Name and Amount */}
+       <div style={{ textAlign: 'center' }}>
+         <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120, fontFamily: "'Outfit', sans-serif" }}>
+@@ -236,55 +236,62 @@ export default function AnalyticsCharts({
+               {formatINRCompact(weeklyAvg)} avg
+             </span>
+           </div>
+-          <ResponsiveContainer width="100%" height={240}>
+-            <AreaChart data={weekly} margin={{ top: 10, right: 10, left: -8, bottom: 0 }}>
+-              <defs>
+-                <linearGradient id="tripWeekly" x1="0" y1="0" x2="0" y2="1">
+-                  <stop offset="5%" stopColor={WEEKLY_ACCENT} stopOpacity={0.35} />
+-                  <stop offset="95%" stopColor={WEEKLY_ACCENT} stopOpacity={0.02} />
+-                </linearGradient>
+-              </defs>
+-              <CartesianGrid strokeDasharray="4 4" stroke={WEEKLY_ACCENT} strokeOpacity={0.14} vertical={false} />
+-              <XAxis dataKey="label" tick={{ fontSize: 12, fill: 'var(--text-muted)', fontWeight: 500 }} axisLine={false} tickLine={false} dy={6} />
+-              <YAxis tickFormatter={formatINRCompact} tick={{ fontSize: 11, fill: 'var(--text-muted)', fontWeight: 500 }} axisLine={false} tickLine={false} width={52} />
+-              <Tooltip content={<TooltipContent />} cursor={{ stroke: WEEKLY_ACCENT, strokeOpacity: 0.35, strokeWidth: 2 }} />
+-              {weeklyAvg > 0 && (
+-                <ReferenceLine
+-                  y={weeklyAvg}
++          <motion.div animate={{ opacity: [0.85, 1, 0.85] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} style={{ width: '100%' }}>
++            <ResponsiveContainer width="100%" height={240}>
++              <AreaChart data={weekly} margin={{ top: 10, right: 10, left: -8, bottom: 0 }}>
++                <defs>
++                  <linearGradient id="tripWeekly" x1="0" y1="0" x2="0" y2="1">
++                    <stop offset="5%" stopColor={WEEKLY_ACCENT} stopOpacity={0.6} />
++                    <stop offset="95%" stopColor={WEEKLY_ACCENT} stopOpacity={0.0} />
++                  </linearGradient>
++                </defs>
++                <CartesianGrid strokeDasharray="4 4" stroke={WEEKLY_ACCENT} strokeOpacity={0.14} vertical={false} />
++                <XAxis dataKey="label" tick={{ fontSize: 12, fill: 'var(--text-muted)', fontWeight: 500 }} axisLine={false} tickLine={false} dy={6} />
++                <YAxis tickFormatter={formatINRCompact} tick={{ fontSize: 11, fill: 'var(--text-muted)', fontWeight: 500 }} axisLine={false} tickLine={false} width={52} />
++                <Tooltip content={<TooltipContent />} cursor={{ stroke: WEEKLY_ACCENT, strokeOpacity: 0.35, strokeWidth: 2 }} />
++                {weeklyAvg > 0 && (
++                  <ReferenceLine
++                    y={weeklyAvg}
++                    stroke={WEEKLY_ACCENT}
++                    strokeOpacity={0.45}
++                    strokeDasharray="5 4"
++                    label={{ value: `avg ${formatINRCompact(weeklyAvg)}`, position: 'insideTopRight', fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700 }}
++                  />
++                )}
++                <Area
++                  type="monotone"
++                  dataKey="value"
+                   stroke={WEEKLY_ACCENT}
+-                  strokeOpacity={0.45}
+-                  strokeDasharray="5 4"
+-                  label={{ value: `avg ${formatINRCompact(weeklyAvg)}`, position: 'insideTopRight', fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700 }}
++                  strokeWidth={4}
++                  strokeLinecap="round"
++                  fill="url(#tripWeekly)"
++                  style={{ filter: `drop-shadow(0px 4px 5px ${WEEKLY_ACCENT}4D)` }}
++                  dot={{ r: 4, fill: WEEKLY_ACCENT, strokeWidth: 0 }}
++                  activeDot={{ r: 7, fill: WEEKLY_ACCENT, stroke: 'var(--bg-primary)', strokeWidth: 3 }}
++                  isAnimationActive={true}
++                  animationDuration={1500}
+                 />
+-              )}
+-              <Area
+-                type="monotone"
+-                dataKey="value"
+-                stroke={WEEKLY_ACCENT}
+-                strokeWidth={3}
+-                strokeLinecap="round"
+-                fill="url(#tripWeekly)"
+-                dot={{ r: 3, fill: WEEKLY_ACCENT, strokeWidth: 0 }}
+-                activeDot={{ r: 6, fill: WEEKLY_ACCENT, stroke: 'var(--bg-primary)', strokeWidth: 3 }}
+-              />
+-            </AreaChart>
+-          </ResponsiveContainer>
++              </AreaChart>
++            </ResponsiveContainer>
++          </motion.div>
+         </Card>
+       </div>
+ 
+       <ChartCard title="Spending by category">
+-        <ResponsiveContainer width="100%" height={280}>
+-          <BarChart data={byCategory} margin={{ left: -16, right: 8 }}>
+-            <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} interval={0} angle={-30} textAnchor="end" height={60} stroke="var(--border-default)" />
+-            <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} stroke="var(--border-default)" />
+-            <Tooltip content={<TooltipContent />} cursor={{ fill: 'rgba(255, 255, 255,0.04)' }} />
+-            <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+-              {byCategory.map((_, i) => (
+-                <Cell key={i} fill={COLORS[i % COLORS.length]} />
+-              ))}
+-            </Bar>
+-          </BarChart>
+-        </ResponsiveContainer>
++        <motion.div animate={{ opacity: [0.85, 1, 0.85] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} style={{ width: '100%' }}>
++          <ResponsiveContainer width="100%" height={280}>
++            <BarChart data={byCategory} margin={{ left: -16, right: 8 }}>
++              <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} interval={0} angle={-30} textAnchor="end" height={60} stroke="var(--border-default)" />
++              <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} stroke="var(--border-default)" />
++              <Tooltip content={<TooltipContent />} cursor={{ fill: 'rgba(255, 255, 255,0.04)' }} />
++              <Bar dataKey="value" radius={[6, 6, 0, 0]} isAnimationActive={true} animationDuration={1500}>
++                {byCategory.map((_, i) => (
++                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
++                ))}
++              </Bar>
++            </BarChart>
++          </ResponsiveContainer>
++        </motion.div>
+       </ChartCard>
+ 
+       <ChartCard title="Spending by person">
+@@ -306,20 +313,22 @@ export default function AnalyticsCharts({
+ 
+       <div style={{ gridColumn: '1 / -1' }}>
+         <ChartCard title="Monthly spending trend">
+-          <ResponsiveContainer width="100%" height={280}>
+-            <AreaChart data={monthly} margin={{ left: -16, right: 8 }}>
+-              <defs>
+-                <linearGradient id="tripTrend" x1="0" y1="0" x2="0" y2="1">
+-                  <stop offset="0%" stopColor="#999999" stopOpacity={0.45} />
+-                  <stop offset="100%" stopColor="#999999" stopOpacity={0} />
+-                </linearGradient>
+-              </defs>
+-              <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} stroke="var(--border-default)" />
+-              <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} stroke="var(--border-default)" />
+-              <Tooltip content={<TooltipContent />} cursor={{ stroke: 'var(--border-default)' }} />
+-              <Area type="monotone" dataKey="value" stroke="#999999" strokeWidth={2} fill="url(#tripTrend)" />
+-            </AreaChart>
+-          </ResponsiveContainer>
++          <motion.div animate={{ opacity: [0.85, 1, 0.85] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} style={{ width: '100%' }}>
++            <ResponsiveContainer width="100%" height={280}>
++              <AreaChart data={monthly} margin={{ left: -16, right: 8 }}>
++                <defs>
++                  <linearGradient id="tripTrend" x1="0" y1="0" x2="0" y2="1">
++                    <stop offset="0%" stopColor="#999999" stopOpacity={0.6} />
++                    <stop offset="100%" stopColor="#999999" stopOpacity={0.0} />
++                  </linearGradient>
++                </defs>
++                <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} stroke="var(--border-default)" />
++                <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} stroke="var(--border-default)" />
++                <Tooltip content={<TooltipContent />} cursor={{ stroke: 'var(--border-default)' }} />
++                <Area type="monotone" dataKey="value" stroke="#999999" strokeWidth={3} fill="url(#tripTrend)" style={{ filter: 'drop-shadow(0px 4px 5px #9999994D)' }} isAnimationActive={true} animationDuration={1500} />
++              </AreaChart>
++            </ResponsiveContainer>
++          </motion.div>
+         </ChartCard>
+       </div>
+     </div>

@@ -195,6 +195,7 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, color }: CalendarH
           ))}
           <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 6, fontWeight: 500 }}>More</span>
         </div>
+        </div>
       </div>
     </motion.div>
   );
