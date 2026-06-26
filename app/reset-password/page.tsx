@@ -70,18 +70,7 @@ function ResetPasswordContent() {
       >
         {/* Brand mark */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-8)' }}>
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: 'var(--r-md)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <span style={{ fontSize: 24, lineHeight: 1 }}>🙂</span>
-          </div>
+            <span style={{ fontSize: 26, lineHeight: 1 }}>🙂</span>
           <span
             className="gradient-text"
             style={{

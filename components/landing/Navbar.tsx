@@ -52,13 +52,7 @@ export default function Navbar() {
           style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}
           onClick={() => setMenuOpen(false)}
         >
-          <div style={{
-            width: 28, height: 28,
-            borderRadius: 'var(--r-sm)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <span style={{ fontSize: 22, lineHeight: 1 }}>🙂</span>
-          </div>
+            <span style={{ fontSize: 24, lineHeight: 1 }}>🙂</span>
           <span style={{
             fontSize: 15,
             fontWeight: 700,

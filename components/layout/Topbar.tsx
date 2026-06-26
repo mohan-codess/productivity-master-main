@@ -131,18 +131,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
               {/* Sidebar Header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 12,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <span style={{ fontSize: 24, lineHeight: 1 }}>🙂</span>
-                  </div>
+                    <span style={{ fontSize: 26, lineHeight: 1 }}>🙂</span>
                   <span
                     style={{
                       fontSize: 18,
@@ -439,19 +428,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
       >
         {/* Left: Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 12,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ fontSize: 26, lineHeight: 1 }}>🙂</span>
-          </div>
+            <span style={{ fontSize: 28, lineHeight: 1 }}>🙂</span>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span
               style={{

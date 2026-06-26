@@ -374,12 +374,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
         {/* Brand */}
         <div style={{ padding: '2px 8px 22px' }}>
           <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 11, textDecoration: 'none' }}>
-            <div style={{
-              width: 38, height: 38, borderRadius: 11, flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <span style={{ fontSize: 26, lineHeight: 1 }}>🙂</span>
-            </div>
+            <span style={{ fontSize: 28, lineHeight: 1 }}>🙂</span>
             <div style={{ minWidth: 0 }}>
               <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', fontFamily: "'Outfit', sans-serif" }}>Productivity Master</p>
               <p style={{ margin: '1px 0 0', fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>by Mohan</p>
@@ -554,12 +549,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
         >
         {/* Brand */}
         <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            display: 'flex', justifyContent: 'center', alignItems: 'center',
-          }}>
-            <span style={{ fontSize: 24, lineHeight: 1 }}>🙂</span>
-          </div>
+          <span style={{ fontSize: 26, lineHeight: 1 }}>🙂</span>
           <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
             <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--text-primary)', fontFamily: "'Outfit', sans-serif" }}>Productivity Master</span>
             <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>by Mohan</span>
