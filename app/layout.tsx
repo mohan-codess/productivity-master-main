@@ -25,6 +25,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://productivity-master-eight.vercel.app"),
   title: "Productivity Master — Build daily habits that actually stick",
   description: "Premium habit tracker for routines, streaks, and self-growth. Track, analyze, and stay consistent — beautifully.",
   manifest: "/manifest.json",
@@ -32,6 +33,13 @@ export const metadata: Metadata = {
     title: "Productivity Master",
     description: "Premium habit tracker for routines, streaks, and self-growth.",
     type: "website",
+    url: "https://productivity-master-eight.vercel.app",
+    siteName: "Productivity Master",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Productivity Master",
+    description: "Premium habit tracker for routines, streaks, and self-growth.",
   },
   appleWebApp: {
     capable: true,
