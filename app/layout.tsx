@@ -28,10 +28,6 @@ export const metadata: Metadata = {
   title: "Productivity Master — Build daily habits that actually stick",
   description: "Premium habit tracker for routines, streaks, and self-growth. Track, analyze, and stay consistent — beautifully.",
   manifest: "/manifest.json",
-  icons: {
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🙂</text></svg>",
-    apple: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🙂</text></svg>",
-  },
   openGraph: {
     title: "Productivity Master",
     description: "Premium habit tracker for routines, streaks, and self-growth.",
@@ -72,9 +68,6 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
     >
       <head>
-        <link rel="icon" href="/icon.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/icon.png" />
-        <link rel="shortcut icon" href="/icon.png" />
         <script
           // Prevent flash of wrong theme — runs before paint.
           dangerouslySetInnerHTML={{

@@ -21,7 +21,6 @@ export default function Icon() {
           alignItems: 'center',
           justifyContent: 'center',
           background: 'white',
-          borderRadius: '110px',
         }}
       >
         <div style={{ fontSize: 380, marginTop: 40 }}>🙂</div>
