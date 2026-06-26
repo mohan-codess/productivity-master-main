@@ -17,16 +17,16 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const borderColor = error
       ? 'var(--danger)'
       : focused
-      ? 'var(--border-active)'
-      : 'var(--border-subtle)';
+        ? 'var(--border-active)'
+        : 'var(--border-subtle)';
 
     const boxShadow = error
       ? focused
         ? '0 0 0 3px color-mix(in srgb, var(--accent-primary) 15%, transparent)'
         : 'none'
       : focused
-      ? '0 0 0 3px var(--accent-glow)'
-      : 'none';
+        ? '0 0 0 3px var(--accent-glow)'
+        : 'none';
 
     return (
       <div className={className} style={{ display: 'flex', flexDirection: 'column', gap: '6px', ...style }}>
@@ -87,7 +87,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               background: 'var(--bg-tertiary)',
               color: 'var(--text-primary)',
               border: `1px solid ${borderColor}`,
-              borderRadius: '10px',
+              borderRadius: 9999,
               padding: icon ? '10px 14px 10px 40px' : '10px 14px',
               fontSize: '14px',
               outline: 'none',

@@ -68,18 +68,18 @@ function ChartSkeleton() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <div className="shimmer" style={{ height: 12, width: 120, borderRadius: 4, marginBottom: 12 }} />
-          <div className="shimmer" style={{ height: 32, width: 200, borderRadius: 8, marginBottom: 8 }} />
-          <div className="shimmer" style={{ height: 14, width: 150, borderRadius: 4 }} />
+          <div className="shimmer" style={{ height: 12, width: 120, borderRadius: 14, marginBottom: 12 }} />
+          <div className="shimmer" style={{ height: 32, width: 200, borderRadius: 14, marginBottom: 8 }} />
+          <div className="shimmer" style={{ height: 14, width: 150, borderRadius: 14 }} />
         </div>
-        <div className="shimmer" style={{ height: 32, width: 100, borderRadius: 8 }} />
+        <div className="shimmer" style={{ height: 32, width: 100, borderRadius: 14 }} />
       </div>
       <div
         className="shimmer"
         style={{
           height: 200,
           width: '100%',
-          borderRadius: 12,
+          borderRadius: 14,
           opacity: 0.4,
           background: 'linear-gradient(90deg, transparent 0%, var(--bg-tertiary) 50%, transparent 100%)',
           backgroundSize: '200% 100%',
@@ -250,7 +250,7 @@ export default function ProgressChart({ data, habitCount }: ProgressChartProps) 
             display: 'flex',
             background: 'var(--bg-tertiary)',
             border: '1px solid var(--border-subtle)',
-            borderRadius: '10px',
+            borderRadius: "var(--r-md)",
             padding: '3px',
             gap: '2px',
           }}
@@ -264,7 +264,7 @@ export default function ProgressChart({ data, habitCount }: ProgressChartProps) 
                 onClick={() => setRange(r)}
                 style={{
                   padding: '5px 12px',
-                  borderRadius: '7px',
+                  borderRadius: "var(--r-md)",
                   border: 'none',
                   background: active ? 'var(--bg-secondary)' : 'transparent',
                   color: active ? 'var(--text-primary)' : 'var(--text-muted)',
@@ -384,8 +384,8 @@ export default function ProgressChart({ data, habitCount }: ProgressChartProps) 
                 d={areaPath}
                 fill="url(#pc-fill)"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.4 }}
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               />
             )}
 

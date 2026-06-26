@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, memo } from 'react';
+import { motion } from 'framer-motion';
 import type { HeatmapCell } from '@/types/analytics';
 import { toLocalDateString } from '@/lib/utils/dates';
 
@@ -98,8 +99,12 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, color }: CalendarH
   }, [weeks]);
 
   return (
-    <div ref={scrollRef} style={{ overflowX: 'auto', paddingBottom: 8 }}>
-      <style>{`.hf-cal-cell { transition: all 0.2s ease; } .hf-cal-cell:hover { transform: scale(1.5); position: relative; z-index: 10; box-shadow: 0 2px 8px rgba(145, 145, 145,0.3); }`}</style>
+    <motion.div
+      animate={{ opacity: [0.85, 1, 0.85] }}
+      transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+    >
+      <div ref={scrollRef} style={{ overflowX: 'auto', paddingBottom: 8 }}>
+      <style>{`.hf-cal-cell { transition: all 0.2s ease; } .hf-cal-cell:hover { transform: scale(1.5); position: relative; z-index: 10; box-shadow: 0 2px 8px rgba(145, 145, 145,0.3); } @keyframes heatmapPulse { 0% { filter: brightness(1); } 50% { filter: brightness(1.2); } 100% { filter: brightness(1); } } .hf-cal-cell-active { animation: heatmapPulse 3s infinite ease-in-out; }`}</style>
       <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 8, minWidth: 'max-content' }}>
         {/* Month labels */}
         <div style={{ display: 'flex', paddingLeft: DAY_LABEL_WIDTH, gap: CELL_GAP }}>
@@ -148,23 +153,24 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, color }: CalendarH
                 return (
                   <div
                     key={wi}
-                    style={{ width: CELL_SIZE, height: CELL_SIZE, borderRadius: 5, flexShrink: 0 }}
+                    style={{ width: CELL_SIZE, height: CELL_SIZE, borderRadius: 14, flexShrink: 0 }}
                   />
                 );
               }
               return (
                 <div
                   key={wi}
-                  className="hf-cal-cell"
+                  className={`hf-cal-cell ${cell.percentage > 0 ? 'hf-cal-cell-active' : ''}`}
                   title={`${cell.date}: ${cell.percentage}% complete`}
                   style={{
                     width: CELL_SIZE,
                     height: CELL_SIZE,
-                    borderRadius: 5,
+                    borderRadius: 14,
                     background: getColor(cell.percentage, baseColor),
                     flexShrink: 0,
                     cursor: 'default',
                     border: cell.percentage > 0 ? '1px solid color-mix(in srgb, var(--text-primary) 10%, transparent)' : '1px solid var(--border-subtle)',
+                    animationDelay: `${(wi + dow) * 0.05}s`,
                   }}
                 />
               );
@@ -181,7 +187,7 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, color }: CalendarH
               style={{
                 width: CELL_SIZE,
                 height: CELL_SIZE,
-                borderRadius: 5,
+                borderRadius: 14,
                 background: getColor(pct, baseColor),
                 border: pct > 0 ? '1px solid color-mix(in srgb, var(--text-primary) 10%, transparent)' : '1px solid var(--border-subtle)',
               }}
@@ -190,7 +196,7 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, color }: CalendarH
           <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 6, fontWeight: 500 }}>More</span>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 });
 

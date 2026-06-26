@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, memo } from 'react';
+import { motion } from 'framer-motion';
 import {
   AreaChart,
   Area,
@@ -48,7 +49,7 @@ function CustomTooltip({
       style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border-default)',
-        borderRadius: 12,
+        borderRadius: 14,
         padding: '12px 16px',
         boxShadow: '0 4px 16px rgba(0, 0, 0,0.15)',
       }}
@@ -114,7 +115,7 @@ const CompletionChart = memo(function CompletionChart({ data, onRangeChange, cur
               onClick={() => handleRange(days)}
               style={{
                 padding: '6px 14px',
-                borderRadius: 10,
+                borderRadius: 14,
                 border: active ? '1px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
                 background: active ? 'var(--accent-primary)' : 'transparent',
                 color: active ? 'var(--accent-on-primary)' : 'var(--text-muted)',
@@ -131,44 +132,54 @@ const CompletionChart = memo(function CompletionChart({ data, onRangeChange, cur
       </div>
 
       {/* Chart */}
-      <ResponsiveContainer width="100%" height={240}>
-        <AreaChart data={data} margin={{ top: 8, right: 5, left: -20, bottom: 0 }}>
-          <defs>
-            <linearGradient id="completionGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={accentHex} stopOpacity={0.4} />
-              <stop offset="95%" stopColor={accentHex} stopOpacity={0.02} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="4 4" stroke="rgba(255, 255, 255,0.06)" vertical={false} />
-          <XAxis
-            dataKey="date"
-            tickFormatter={formatXAxis}
-            ticks={ticks}
-            tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: "'IBM Plex Sans'", fontWeight: 500 }}
-            axisLine={false}
-            tickLine={false}
-            dy={8}
-          />
-          <YAxis
-            domain={[0, 100]}
-            tickFormatter={(v) => `${v}%`}
-            tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: "'IBM Plex Sans'", fontWeight: 500 }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: accentHex, strokeOpacity: 0.3, strokeWidth: 2 }} />
-          <Area
-            type="monotone"
-            dataKey="percentage"
-            stroke={accentHex}
-            strokeWidth={3}
-            strokeLinecap="round"
-            fill="url(#completionGradient)"
-            dot={false}
-            activeDot={{ r: 7, fill: accentHex, stroke: 'var(--bg-primary)', strokeWidth: 3 }}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+      <motion.div 
+        animate={{ opacity: [0.85, 1, 0.85] }} 
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} 
+        style={{ width: '100%' }}
+      >
+        <ResponsiveContainer width="100%" height={240}>
+          <AreaChart data={data} margin={{ top: 8, right: 5, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="completionGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={accentHex} stopOpacity={0.6} />
+                <stop offset="95%" stopColor={accentHex} stopOpacity={0.0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="4 4" stroke="rgba(255, 255, 255,0.06)" vertical={false} />
+            <XAxis
+              dataKey="date"
+              tickFormatter={formatXAxis}
+              ticks={ticks}
+              tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: "'IBM Plex Sans'", fontWeight: 500 }}
+              axisLine={false}
+              tickLine={false}
+              dy={8}
+            />
+            <YAxis
+              domain={[0, 100]}
+              tickFormatter={(v) => `${v}%`}
+              tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: "'IBM Plex Sans'", fontWeight: 500 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip content={<CustomTooltip />} cursor={{ stroke: accentHex, strokeOpacity: 0.3, strokeWidth: 2 }} />
+            <Area
+              type="monotone"
+              dataKey="percentage"
+              stroke={accentHex}
+              strokeWidth={4}
+              strokeLinecap="round"
+              fill="url(#completionGradient)"
+              style={{ filter: `drop-shadow(0px 4px 5px ${accentHex}4D)` }}
+              dot={false}
+              activeDot={{ r: 7, fill: accentHex, stroke: 'var(--bg-primary)', strokeWidth: 3 }}
+              isAnimationActive={true}
+              animationDuration={1500}
+              animationEasing="ease-out"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </motion.div>
     </div>
   );
 });

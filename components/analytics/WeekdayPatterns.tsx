@@ -1,6 +1,7 @@
 'use client';
 
 import React, { memo } from 'react';
+import { motion } from 'framer-motion';
 import {
   BarChart,
   Bar,
@@ -68,37 +69,49 @@ const WeekdayPatterns = memo(function WeekdayPatterns({ data }: Props) {
   const maxRate = Math.max(...data.map((d) => d.completionRate), 1);
 
   return (
-    <ResponsiveContainer width="100%" height={200}>
-      <BarChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }} barCategoryGap="30%">
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255,0.04)" vertical={false} />
-        <XAxis
-          dataKey="day"
-          tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: "'IBM Plex Sans'" }}
-          axisLine={false}
-          tickLine={false}
-        />
-        <YAxis
-          domain={[0, 100]}
-          tickFormatter={(v) => `${v}%`}
-          tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: "'IBM Plex Sans'" }}
-          axisLine={false}
-          tickLine={false}
-        />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255, 255, 255,0.03)' }} />
-        <Bar dataKey="completionRate" radius={[6, 6, 0, 0]}>
-          {data.map((entry, index) => {
-            const intensity = entry.completionRate / maxRate;
-            const opacity = 0.35 + intensity * 0.65;
-            return (
-              <Cell
-                key={index}
-                fill={hexToRgba(accentHex, opacity)}
-              />
-            );
-          })}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+    <motion.div
+      animate={{ opacity: [0.85, 1, 0.85] }}
+      transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      style={{ width: '100%', height: 200 }}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }} barCategoryGap="30%">
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255,0.04)" vertical={false} />
+          <XAxis
+            dataKey="day"
+            tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: "'IBM Plex Sans'" }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <YAxis
+            domain={[0, 100]}
+            tickFormatter={(v) => `${v}%`}
+            tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: "'IBM Plex Sans'" }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255, 255, 255,0.03)' }} />
+          <Bar 
+            dataKey="completionRate" 
+            radius={[6, 6, 0, 0]}
+            isAnimationActive={true}
+            animationDuration={1500}
+            animationEasing="ease-out"
+          >
+            {data.map((entry, index) => {
+              const intensity = entry.completionRate / maxRate;
+              const opacity = 0.35 + intensity * 0.65;
+              return (
+                <Cell
+                  key={index}
+                  fill={hexToRgba(accentHex, opacity)}
+                />
+              );
+            })}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </motion.div>
   );
 });
 

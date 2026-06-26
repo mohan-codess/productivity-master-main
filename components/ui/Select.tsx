@@ -25,7 +25,7 @@ const controlBase: React.CSSProperties = {
   color: 'var(--text-primary)',
   background: 'var(--bg-tertiary)',
   border: '1px solid var(--border-subtle)',
-  borderRadius: 10,
+  borderRadius: 9999,
   outline: 'none',
 };
 

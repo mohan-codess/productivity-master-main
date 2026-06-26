@@ -51,7 +51,7 @@ function TooltipContent({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   const name = label ?? payload[0]?.payload?.name ?? payload[0]?.name;
   return (
-    <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', borderRadius: 8, padding: '8px 12px', fontSize: 13 }}>
+    <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', borderRadius: 14, padding: '8px 12px', fontSize: 13 }}>
       <p style={{ margin: 0, fontWeight: 600, color: 'var(--text-primary)' }}>{name}</p>
       <p style={{ margin: '2px 0 0', color: 'var(--text-muted)' }}>{formatINR(Number(payload[0]?.value ?? 0))}</p>
     </div>
@@ -78,7 +78,7 @@ function CircularShareProgress({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, minWidth: 120 }}>
       {/* SVG Ring */}
-      <div style={{ position: 'relative', width: size, height: size }}>
+      <motion.div animate={{ scale: [1, 1.03, 1] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} style={{ position: 'relative', width: size, height: size }}>
         <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
           {/* Background Track */}
           <circle
@@ -128,7 +128,7 @@ function CircularShareProgress({
             share
           </span>
         </div>
-      </div>
+      </motion.div>
       {/* Name and Amount */}
       <div style={{ textAlign: 'center' }}>
         <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120, fontFamily: "'Outfit', sans-serif" }}>
@@ -236,55 +236,62 @@ export default function AnalyticsCharts({
               {formatINRCompact(weeklyAvg)} avg
             </span>
           </div>
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={weekly} margin={{ top: 10, right: 10, left: -8, bottom: 0 }}>
-              <defs>
-                <linearGradient id="tripWeekly" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={WEEKLY_ACCENT} stopOpacity={0.35} />
-                  <stop offset="95%" stopColor={WEEKLY_ACCENT} stopOpacity={0.02} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="4 4" stroke={WEEKLY_ACCENT} strokeOpacity={0.14} vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 12, fill: 'var(--text-muted)', fontWeight: 500 }} axisLine={false} tickLine={false} dy={6} />
-              <YAxis tickFormatter={formatINRCompact} tick={{ fontSize: 11, fill: 'var(--text-muted)', fontWeight: 500 }} axisLine={false} tickLine={false} width={52} />
-              <Tooltip content={<TooltipContent />} cursor={{ stroke: WEEKLY_ACCENT, strokeOpacity: 0.35, strokeWidth: 2 }} />
-              {weeklyAvg > 0 && (
-                <ReferenceLine
-                  y={weeklyAvg}
+          <motion.div animate={{ opacity: [0.85, 1, 0.85] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} style={{ width: '100%' }}>
+            <ResponsiveContainer width="100%" height={240}>
+              <AreaChart data={weekly} margin={{ top: 10, right: 10, left: -8, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="tripWeekly" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={WEEKLY_ACCENT} stopOpacity={0.6} />
+                    <stop offset="95%" stopColor={WEEKLY_ACCENT} stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="4 4" stroke={WEEKLY_ACCENT} strokeOpacity={0.14} vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 12, fill: 'var(--text-muted)', fontWeight: 500 }} axisLine={false} tickLine={false} dy={6} />
+                <YAxis tickFormatter={formatINRCompact} tick={{ fontSize: 11, fill: 'var(--text-muted)', fontWeight: 500 }} axisLine={false} tickLine={false} width={52} />
+                <Tooltip content={<TooltipContent />} cursor={{ stroke: WEEKLY_ACCENT, strokeOpacity: 0.35, strokeWidth: 2 }} />
+                {weeklyAvg > 0 && (
+                  <ReferenceLine
+                    y={weeklyAvg}
+                    stroke={WEEKLY_ACCENT}
+                    strokeOpacity={0.45}
+                    strokeDasharray="5 4"
+                    label={{ value: `avg ${formatINRCompact(weeklyAvg)}`, position: 'insideTopRight', fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700 }}
+                  />
+                )}
+                <Area
+                  type="monotone"
+                  dataKey="value"
                   stroke={WEEKLY_ACCENT}
-                  strokeOpacity={0.45}
-                  strokeDasharray="5 4"
-                  label={{ value: `avg ${formatINRCompact(weeklyAvg)}`, position: 'insideTopRight', fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700 }}
+                  strokeWidth={4}
+                  strokeLinecap="round"
+                  fill="url(#tripWeekly)"
+                  style={{ filter: `drop-shadow(0px 4px 5px ${WEEKLY_ACCENT}4D)` }}
+                  dot={{ r: 4, fill: WEEKLY_ACCENT, strokeWidth: 0 }}
+                  activeDot={{ r: 7, fill: WEEKLY_ACCENT, stroke: 'var(--bg-primary)', strokeWidth: 3 }}
+                  isAnimationActive={true}
+                  animationDuration={1500}
                 />
-              )}
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke={WEEKLY_ACCENT}
-                strokeWidth={3}
-                strokeLinecap="round"
-                fill="url(#tripWeekly)"
-                dot={{ r: 3, fill: WEEKLY_ACCENT, strokeWidth: 0 }}
-                activeDot={{ r: 6, fill: WEEKLY_ACCENT, stroke: 'var(--bg-primary)', strokeWidth: 3 }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+              </AreaChart>
+            </ResponsiveContainer>
+          </motion.div>
         </Card>
       </div>
 
       <ChartCard title="Spending by category">
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={byCategory} margin={{ left: -16, right: 8 }}>
-            <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} interval={0} angle={-30} textAnchor="end" height={60} stroke="var(--border-default)" />
-            <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} stroke="var(--border-default)" />
-            <Tooltip content={<TooltipContent />} cursor={{ fill: 'rgba(255, 255, 255,0.04)' }} />
-            <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-              {byCategory.map((_, i) => (
-                <Cell key={i} fill={COLORS[i % COLORS.length]} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+        <motion.div animate={{ opacity: [0.85, 1, 0.85] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} style={{ width: '100%' }}>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={byCategory} margin={{ left: -16, right: 8 }}>
+              <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} interval={0} angle={-30} textAnchor="end" height={60} stroke="var(--border-default)" />
+              <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} stroke="var(--border-default)" />
+              <Tooltip content={<TooltipContent />} cursor={{ fill: 'rgba(255, 255, 255,0.04)' }} />
+              <Bar dataKey="value" radius={[6, 6, 0, 0]} isAnimationActive={true} animationDuration={1500}>
+                {byCategory.map((_, i) => (
+                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </motion.div>
       </ChartCard>
 
       <ChartCard title="Spending by person">
@@ -306,20 +313,22 @@ export default function AnalyticsCharts({
 
       <div style={{ gridColumn: '1 / -1' }}>
         <ChartCard title="Monthly spending trend">
-          <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={monthly} margin={{ left: -16, right: 8 }}>
-              <defs>
-                <linearGradient id="tripTrend" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#999999" stopOpacity={0.45} />
-                  <stop offset="100%" stopColor="#999999" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} stroke="var(--border-default)" />
-              <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} stroke="var(--border-default)" />
-              <Tooltip content={<TooltipContent />} cursor={{ stroke: 'var(--border-default)' }} />
-              <Area type="monotone" dataKey="value" stroke="#999999" strokeWidth={2} fill="url(#tripTrend)" />
-            </AreaChart>
-          </ResponsiveContainer>
+          <motion.div animate={{ opacity: [0.85, 1, 0.85] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} style={{ width: '100%' }}>
+            <ResponsiveContainer width="100%" height={280}>
+              <AreaChart data={monthly} margin={{ left: -16, right: 8 }}>
+                <defs>
+                  <linearGradient id="tripTrend" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#999999" stopOpacity={0.6} />
+                    <stop offset="100%" stopColor="#999999" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} stroke="var(--border-default)" />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} stroke="var(--border-default)" />
+                <Tooltip content={<TooltipContent />} cursor={{ stroke: 'var(--border-default)' }} />
+                <Area type="monotone" dataKey="value" stroke="#999999" strokeWidth={3} fill="url(#tripTrend)" style={{ filter: 'drop-shadow(0px 4px 5px #9999994D)' }} isAnimationActive={true} animationDuration={1500} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </motion.div>
         </ChartCard>
       </div>
     </div>

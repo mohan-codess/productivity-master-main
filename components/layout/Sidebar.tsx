@@ -63,7 +63,7 @@ function NavItem({
       onClick={onClick}
       style={{
         width: '100%', display: 'flex', alignItems: 'center', gap: 12,
-        padding: '11px 14px', borderRadius: 12, border: 'none', cursor: 'pointer',
+        padding: '11px 14px', borderRadius: 9999, border: 'none', cursor: 'pointer',
         background: active ? 'var(--accent-primary)' : 'transparent',
         color: active ? 'var(--accent-on-primary)' : 'var(--text-secondary)',
         fontSize: 14, fontWeight: active ? 700 : 600, fontFamily: 'inherit', textAlign: 'left',
@@ -73,7 +73,6 @@ function NavItem({
       onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = 'var(--surface-tint)'; }}
       onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent'; }}
     >
-      <span style={{ display: 'flex', flexShrink: 0 }}>{icon}</span>
       {label}
     </Link>
   );
@@ -96,7 +95,7 @@ function NavGroup({
         onClick={onToggle}
         style={{
           width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-          padding: '10px 14px', borderRadius: 12, border: 'none', cursor: 'pointer',
+          padding: '10px 14px', borderRadius: 9999, border: 'none', cursor: 'pointer',
           background: 'var(--accent-primary)',
           color: 'var(--accent-on-primary)',
           fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit', textAlign: 'left',
@@ -105,7 +104,6 @@ function NavGroup({
         onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.88'; }}
         onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
       >
-        <span style={{ display: 'flex', flexShrink: 0, color: 'inherit' }}>{icon}</span>
         <span style={{ flex: 1 }}>{label}</span>
         <motion.span
           animate={{ rotate: expanded ? 180 : 0 }}
@@ -156,7 +154,7 @@ function SubNavItem({
       onClick={onClick}
       style={{
         width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-        padding: '8px 10px', borderRadius: 10, border: 'none', cursor: 'pointer',
+        padding: '8px 10px', borderRadius: 9999, border: 'none', cursor: 'pointer',
         background: active ? 'rgba(255,255,255,0.10)' : 'transparent',
         color: active ? 'var(--text-primary)' : 'var(--text-muted)',
         fontSize: 13, fontWeight: active ? 600 : 400, fontFamily: 'inherit', textAlign: 'left',
@@ -166,7 +164,6 @@ function SubNavItem({
       onMouseEnter={(e) => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
       onMouseLeave={(e) => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; } }}
     >
-      <span style={{ display: 'flex', flexShrink: 0 }}>{icon}</span>
       {label}
     </Link>
   );
@@ -363,7 +360,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
       <aside
         className="hf-desktop-sidebar no-print"
         style={{
-          position: 'fixed', top: 0, left: 0, bottom: 0, width: 264, zIndex: 50,
+          position: 'fixed', top: 0, left: 0, bottom: 0, width: 220, zIndex: 50,
           flexDirection: 'column',
           background: 'var(--bg-tertiary)',
           borderRight: '1px solid var(--border-default)',
@@ -388,7 +385,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
           onClick={() => setPaletteOpen(true)}
           style={{
             display: 'flex', alignItems: 'center', gap: 10, width: '100%',
-            padding: '9px 12px', borderRadius: 11, marginBottom: 14,
+            padding: '9px 12px', borderRadius: 9999, marginBottom: 14,
             border: '1px solid var(--border-default)', background: 'var(--bg-card)',
             color: 'var(--text-muted)', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 600,
           }}
@@ -476,7 +473,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
             onClick={() => setIsCollapsed(true)}
             style={{
               display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-              padding: '11px 14px', borderRadius: 12, border: 'none', cursor: 'pointer',
+              padding: '11px 14px', borderRadius: 9999, border: 'none', cursor: 'pointer',
               background: 'transparent', color: 'var(--text-secondary)',
               fontSize: 14, fontWeight: 600, fontFamily: 'inherit', textAlign: 'left',
               transition: 'background 0.15s ease',
@@ -491,7 +488,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
             onClick={toggle}
             style={{
               display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-              padding: '11px 14px', borderRadius: 12, border: 'none', cursor: 'pointer',
+              padding: '11px 14px', borderRadius: 9999, border: 'none', cursor: 'pointer',
               background: 'transparent', color: 'var(--text-secondary)',
               fontSize: 14, fontWeight: 600, fontFamily: 'inherit', textAlign: 'left',
               transition: 'background 0.15s ease',
@@ -533,7 +530,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
       <div className="hf-mobile-nav no-print" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 40, padding: '16px 16px 0 16px' }}>
         <header
           style={{
-            height: 60,
+            height: 72,
             padding: '0 16px',
             background: 'var(--bg-glass-strong)',
             backdropFilter: 'blur(20px)',
@@ -573,7 +570,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
         </button>
         </header>
       </div>
-      <div className="hf-mobile-nav no-print" style={{ height: 76, width: '100%', flexShrink: 0 }} aria-hidden="true" />
+      <div className="hf-mobile-nav no-print" style={{ height: 88, width: '100%', flexShrink: 0 }} aria-hidden="true" />
 
       {/* Mobile Drawer (visible only < 1024px) */}
       <AnimatePresence>
@@ -605,7 +602,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
                 top: 0,
                 left: 0,
                 bottom: 0,
-                width: 280,
+                width: 240,
                 zIndex: 100,
                 background: 'var(--bg-tertiary)',
                 borderRight: '1px solid var(--border-default)',
@@ -620,7 +617,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                 <Link href="/dashboard" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
                   <div style={{
-                    width: 34, height: 34, borderRadius: 10,
+                    width: 34, height: 34, borderRadius: 9999,
                     background: 'var(--accent-primary)', color: 'var(--accent-on-primary)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
@@ -649,7 +646,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
                 onClick={() => { setPaletteOpen(true); setMobileOpen(false); }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 10, width: '100%',
-                  padding: '9px 12px', borderRadius: 11, marginBottom: 14,
+                  padding: '9px 12px', borderRadius: 9999, marginBottom: 14,
                   border: '1px solid var(--border-default)', background: 'var(--bg-card)',
                   color: 'var(--text-muted)', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 600,
                 }}
@@ -736,7 +733,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
                   onClick={() => { toggle(); setMobileOpen(false); }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-                    padding: '11px 14px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                    padding: '11px 14px', borderRadius: 9999, border: 'none', cursor: 'pointer',
                     background: 'transparent', color: 'var(--text-secondary)',
                     fontSize: 14, fontWeight: 600, fontFamily: 'inherit', textAlign: 'left',
                     transition: 'background 0.15s ease',
@@ -795,7 +792,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
                 width: '100%',
                 background: 'var(--bg-tertiary)',
                 border: '1px solid var(--border-default)',
-                borderRadius: 12,
+                borderRadius: 9999,
                 padding: '12px 14px',
                 fontSize: 14,
                 color: 'var(--text-primary)',
@@ -818,7 +815,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
                   width: '100%',
                   background: 'var(--bg-tertiary)',
                   border: '1px solid var(--border-default)',
-                  borderRadius: 12,
+                  borderRadius: 9999,
                   padding: '12px 14px',
                   fontSize: 14,
                   color: 'var(--text-primary)',
@@ -839,7 +836,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
                   width: '100%',
                   background: 'var(--bg-tertiary)',
                   border: '1px solid var(--border-default)',
-                  borderRadius: 12,
+                  borderRadius: 9999,
                   padding: '12px 14px',
                   fontSize: 14,
                   color: 'var(--text-primary)',
@@ -863,7 +860,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
                 width: '100%',
                 background: 'var(--bg-tertiary)',
                 border: '1px solid var(--border-default)',
-                borderRadius: 12,
+                borderRadius: 9999,
                 padding: '12px 14px',
                 fontSize: 14,
                 color: 'var(--text-primary)',
@@ -886,7 +883,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
                 width: '100%',
                 background: 'var(--bg-tertiary)',
                 border: '1px solid var(--border-default)',
-                borderRadius: 12,
+                borderRadius: 9999,
                 padding: '12px 14px',
                 fontSize: 14,
                 color: 'var(--text-primary)',
@@ -905,7 +902,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
               onClick={() => setShowCreateModal(false)}
               style={{
                 padding: '10px 16px',
-                borderRadius: 12,
+                borderRadius: 9999,
                 border: '1px solid var(--border-default)',
                 background: 'transparent',
                 color: 'var(--text-secondary)',
@@ -920,7 +917,7 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
               disabled={creating}
               style={{
                 padding: '10px 16px',
-                borderRadius: 12,
+                borderRadius: 9999,
                 border: 'none',
                 background: 'var(--accent-primary)',
                 color: 'var(--accent-on-primary)',

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { memo, useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   AreaChart,
   Area,
@@ -34,7 +35,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Toolti
       style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border-default)',
-        borderRadius: 12,
+        borderRadius: 9999,
         padding: '10px 14px',
       }}
     >
@@ -82,51 +83,57 @@ const WeeklyReportChart = memo(function WeeklyReportChart({
   return (
     <div ref={containerRef} style={{ width: '100%', height: CHART_HEIGHT }}>
       {width > 0 ? (
-        <AreaChart width={width} height={CHART_HEIGHT} data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-          <defs>
-            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={c} stopOpacity={0.35} />
-              <stop offset="95%" stopColor={c} stopOpacity={0.02} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="4 4" stroke={c} strokeOpacity={0.14} vertical={false} />
-          <XAxis
-            dataKey="label"
-            tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}
-            axisLine={false}
-            tickLine={false}
-            dy={6}
-          />
-          <YAxis
-            domain={[0, 100]}
-            ticks={[0, 50, 100]}
-            tickFormatter={(v) => `${v}%`}
-            tick={{ fill: 'var(--text-muted)', fontSize: 11, fontWeight: 500 }}
-            axisLine={false}
-            tickLine={false}
-            width={46}
-          />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: c, strokeOpacity: 0.35, strokeWidth: 2 }} />
-          {avg > 0 && (
-            <ReferenceLine
-              y={avg}
-              stroke={c}
-              strokeOpacity={0.45}
-              strokeDasharray="5 4"
-              label={{ value: `avg ${avg}%`, position: 'insideTopRight', fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700 }}
+        <motion.div animate={{ opacity: [0.85, 1, 0.85] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}>
+          <AreaChart width={width} height={CHART_HEIGHT} data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={c} stopOpacity={0.6} />
+                <stop offset="95%" stopColor={c} stopOpacity={0.0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="4 4" stroke={c} strokeOpacity={0.14} vertical={false} />
+            <XAxis
+              dataKey="label"
+              tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}
+              axisLine={false}
+              tickLine={false}
+              dy={6}
             />
-          )}
-          <Area
-            type="monotone"
-            dataKey="pct"
-            stroke={c}
-            strokeWidth={3}
-            strokeLinecap="round"
-            fill={`url(#${gradientId})`}
-            dot={{ r: 3, fill: c, strokeWidth: 0 }}
-            activeDot={{ r: 6, fill: c, stroke: 'var(--bg-primary)', strokeWidth: 3 }}
-          />
-        </AreaChart>
+            <YAxis
+              domain={[0, 100]}
+              ticks={[0, 50, 100]}
+              tickFormatter={(v) => `${v}%`}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11, fontWeight: 500 }}
+              axisLine={false}
+              tickLine={false}
+              width={46}
+            />
+            <Tooltip content={<CustomTooltip />} cursor={{ stroke: c, strokeOpacity: 0.35, strokeWidth: 2 }} />
+            {avg > 0 && (
+              <ReferenceLine
+                y={avg}
+                stroke={c}
+                strokeOpacity={0.45}
+                strokeDasharray="5 4"
+                label={{ value: `avg ${avg}%`, position: 'insideTopRight', fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700 }}
+              />
+            )}
+            <Area
+              type="monotone"
+              dataKey="pct"
+              stroke={c}
+              strokeWidth={4}
+              strokeLinecap="round"
+              fill={`url(#${gradientId})`}
+              style={{ filter: `drop-shadow(0px 4px 5px ${c}4D)` }}
+              dot={{ r: 4, fill: c, strokeWidth: 0 }}
+              activeDot={{ r: 7, fill: c, stroke: 'var(--bg-primary)', strokeWidth: 3 }}
+              isAnimationActive={true}
+              animationDuration={1200}
+              animationEasing="ease-out"
+            />
+          </AreaChart>
+        </motion.div>
       ) : null}
     </div>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { memo } from 'react';
+import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import type { CategoryStat } from '@/types/analytics';
 
@@ -61,7 +62,11 @@ const CategoryBreakdown = memo(function CategoryBreakdown({ data }: Props) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
       {/* Pie chart */}
-      <div style={{ flexShrink: 0 }}>
+      <motion.div 
+        animate={{ opacity: [0.85, 1, 0.85] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ flexShrink: 0 }}
+      >
         <ResponsiveContainer width={160} height={160}>
           <PieChart>
             <Pie
@@ -73,6 +78,9 @@ const CategoryBreakdown = memo(function CategoryBreakdown({ data }: Props) {
               paddingAngle={3}
               dataKey="percentage"
               strokeWidth={0}
+              isAnimationActive={true}
+              animationDuration={1500}
+              animationEasing="ease-out"
             >
               {colored.map((entry, index) => (
                 <Cell key={index} fill={entry.color} opacity={0.9} />
@@ -81,7 +89,7 @@ const CategoryBreakdown = memo(function CategoryBreakdown({ data }: Props) {
             <Tooltip content={<CustomTooltip />} />
           </PieChart>
         </ResponsiveContainer>
-      </div>
+      </motion.div>
 
       {/* Legend */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minWidth: 140 }}>
@@ -120,13 +128,14 @@ const CategoryBreakdown = memo(function CategoryBreakdown({ data }: Props) {
                   overflow: 'hidden',
                 }}
               >
-                <div
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${cat.percentage}%` }}
+                  transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
                   style={{
                     height: '100%',
-                    width: `${cat.percentage}%`,
                     background: cat.color,
                     borderRadius: 2,
-                    transition: 'width 0.5s ease',
                   }}
                 />
               </div>

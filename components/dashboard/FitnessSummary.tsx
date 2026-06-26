@@ -7,7 +7,7 @@ import {
   User, Plus, LayoutDashboard, BarChart3, Trophy, Sparkles,
   CalendarCheck, Compass, Settings, Flame, CheckCircle2, TrendingUp,
   Target, Sun, Moon, ArrowLeft, Wallet, Receipt, MapPin, ExternalLink,
-  Luggage, Coins, ChevronDown, Ban, Download,
+  Luggage, Coins, ChevronDown, ChevronUp, Ban, Download,
 } from 'lucide-react';
 import { DynamicIcon, HABIT_ICON_NAMES } from '@/lib/icons';
 import DevicesModal from '@/components/settings/DevicesModal';
@@ -1586,6 +1586,7 @@ export default function FitnessSummary({
   const [loadingDate, setLoadingDate] = useState(false);
   const [habitNavOpen, setHabitNavOpen] = useState(true);
   const [tripNavOpen, setTripNavOpen] = useState(false);
+  const [showAllGoodHabits, setShowAllGoodHabits] = useState(false);
 
   // ── Theme (sidebar/topbar quick toggle) ──
   // Reflect the theme actually applied to <html>; re-sync after the profile
@@ -1639,15 +1640,17 @@ export default function FitnessSummary({
   const goodHabits = localHabits.filter((h) => !h.is_bad_habit);
 
   // Habits displayed with the selected date's completion state
-  const displayHabits = isViewingToday
+  const displayHabitsFull = isViewingToday
     ? goodHabits
     : goodHabits.map((h) => ({
       ...h,
       todayEntry: { habit_id: h.id, is_completed: dateEntries[h.id] ?? false } as HabitWithEntry['todayEntry'],
     }));
 
-  const completedCount = displayHabits.filter((h) => h.todayEntry?.is_completed).length;
-  const totalCount = displayHabits.length;
+  const displayHabits = showAllGoodHabits ? displayHabitsFull : displayHabitsFull.slice(0, 2);
+
+  const completedCount = displayHabitsFull.filter((h) => h.todayEntry?.is_completed).length;
+  const totalCount = displayHabitsFull.length;
   const todayPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   // Bad habits — checking one off means it was *avoided* on the selected date.
@@ -1892,6 +1895,15 @@ export default function FitnessSummary({
                     {displayHabits.map((h, i) => (
                       <HabitRow key={h.id} habit={h} index={i} onToggle={handleToggle} onOpen={setSelectedId} />
                     ))}
+                    {displayHabitsFull.length > 2 && (
+                      <button
+                        onClick={() => setShowAllGoodHabits(!showAllGoodHabits)}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 16px', borderRadius: 10, border: '1px solid var(--border-subtle)', background: 'var(--bg-tertiary)', color: 'var(--text-muted)', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}
+                      >
+                        {showAllGoodHabits ? 'Show less' : `Show all habits (${displayHabitsFull.length})`}
+                        {showAllGoodHabits ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      </button>
+                    )}
                   </div>
                 )}
               </DashCard>

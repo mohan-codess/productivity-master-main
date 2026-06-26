@@ -74,7 +74,11 @@ export default function WeeklyOverview({ weekData }: { weekData: WeekDayData[] }
       </div>
 
       {/* Chart area with grid lines */}
-      <div style={{ position: 'relative' }}>
+      <motion.div 
+        style={{ position: 'relative' }}
+        animate={{ opacity: [0.85, 1, 0.85] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      >
         {/* Horizontal grid lines */}
         {GRID_LINES.map((line) => (
           <div
@@ -186,7 +190,7 @@ export default function WeeklyOverview({ weekData }: { weekData: WeekDayData[] }
             );
           })}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

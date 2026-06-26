@@ -32,34 +32,34 @@ const Spinner = () => (
    - danger: tinted red glass */
 const base: Record<ButtonVariant, { bg: string; color: string; border: string; shadow?: string }> = {
   primary: {
-    bg:     'var(--accent-primary)',
-    color:  'var(--accent-on-primary)',
+    bg: 'var(--accent-primary)',
+    color: 'var(--accent-on-primary)',
     border: '1px solid rgba(255, 255, 255,0.14)',
     shadow: 'none',
   },
   secondary: {
-    bg:     'var(--bg-tertiary)',
-    color:  'var(--text-primary)',
+    bg: 'var(--bg-tertiary)',
+    color: 'var(--text-primary)',
     border: '1px solid var(--border-default)',
     shadow: 'none',
   },
   ghost: {
-    bg:     'transparent',
-    color:  'var(--text-secondary)',
+    bg: 'transparent',
+    color: 'var(--text-secondary)',
     border: '1px solid transparent',
   },
   danger: {
-    bg:     'rgba(142, 142, 142,0.12)',
-    color:  'var(--danger)',
+    bg: 'rgba(142, 142, 142,0.12)',
+    color: 'var(--danger)',
     border: '1px solid rgba(142, 142, 142,0.30)',
     shadow: 'none',
   },
 };
 
 const sizes: Record<ButtonSize, React.CSSProperties> = {
-  sm: { padding: '6px 13px', fontSize: 12.5, borderRadius: 10, gap: 6 },
-  md: { padding: '9px 18px', fontSize: 13.5, borderRadius: 12, gap: 7 },
-  lg: { padding: '12px 24px',fontSize: 14.5, borderRadius: 14, gap: 8 },
+  sm: { padding: '6px 13px', fontSize: 12.5, borderRadius: 9999, gap: 6 },
+  md: { padding: '9px 18px', fontSize: 13.5, borderRadius: 9999, gap: 7 },
+  lg: { padding: '12px 24px', fontSize: 14.5, borderRadius: 9999, gap: 8 },
 };
 
 export default function Button({
@@ -75,25 +75,25 @@ export default function Button({
   className = '',
 }: ButtonProps) {
   const off = disabled || loading;
-  const v   = base[variant];
+  const v = base[variant];
 
   const style: React.CSSProperties = {
-    display:        'inline-flex',
-    alignItems:     'center',
+    display: 'inline-flex',
+    alignItems: 'center',
     justifyContent: 'center',
-    fontWeight:     700,
-    letterSpacing:  '-0.1px',
-    cursor:         off ? 'not-allowed' : 'pointer',
-    opacity:        off ? 0.45 : 1,
+    fontWeight: 700,
+    letterSpacing: '-0.1px',
+    cursor: off ? 'not-allowed' : 'pointer',
+    opacity: off ? 0.45 : 1,
     transition: 'transform 0.15s ease, filter 0.15s ease, background 0.15s ease, opacity 0.15s ease, border-color 0.15s ease',
-    width:          fullWidth ? '100%' : undefined,
-    outline:        'none',
-    userSelect:     'none',
-    whiteSpace:     'nowrap',
-    background:     v.bg,
-    color:          v.color,
-    border:         v.border,
-    boxShadow:      v.shadow,
+    width: fullWidth ? '100%' : undefined,
+    outline: 'none',
+    userSelect: 'none',
+    whiteSpace: 'nowrap',
+    background: v.bg,
+    color: v.color,
+    border: v.border,
+    boxShadow: v.shadow,
     ...sizes[size],
   };
 

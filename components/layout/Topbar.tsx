@@ -147,7 +147,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                   style={{
                     width: 40,
                     height: 40,
-                    borderRadius: 10,
+                    borderRadius: 9999,
                     border: '1px solid var(--border-default)',
                     background: 'var(--bg-tertiary)',
                     display: 'flex',
@@ -174,7 +174,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                       style={{
                         width: 44,
                         height: 44,
-                        borderRadius: 12,
+                        borderRadius: 9999,
                         background: 'var(--bg-elevated)',
                         border: '1px solid var(--border-default)',
                         display: 'flex',
@@ -207,7 +207,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                     justifyContent: 'center',
                     gap: 8,
                     padding: '10px 14px',
-                    borderRadius: 12,
+                    borderRadius: 9999,
                     border: 'none',
                     background: 'var(--accent-primary)',
                     color: 'var(--accent-on-primary)',
@@ -277,7 +277,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                               onClick={() => { onTabChange?.(tab); setSidebarOpen(false); }}
                               style={{
                                 display: 'flex', alignItems: 'center', gap: 10,
-                                padding: '9px 10px', borderRadius: 10, cursor: 'pointer',
+                                padding: '9px 10px', borderRadius: 9999, cursor: 'pointer',
                                 background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
                                 border: 'none',
                                 color: active ? '#ffffff' : 'rgba(255,255,255,0.55)',
@@ -349,7 +349,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                             onClick={() => setSidebarOpen(false)}
                             style={{
                               display: 'flex', alignItems: 'center', gap: 10,
-                              padding: '9px 10px', borderRadius: 10,
+                              padding: '9px 10px', borderRadius: 9999,
                               color: 'rgba(255,255,255,0.55)',
                               fontWeight: 400, textDecoration: 'none',
                               transition: 'all 0.15s',
@@ -378,7 +378,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                     alignItems: 'center',
                     gap: 10,
                     padding: '12px 14px',
-                    borderRadius: 12,
+                    borderRadius: 9999,
                     border: '1px solid var(--border-default)',
                     background: 'var(--bg-tertiary)',
                     color: 'var(--text-muted)',
@@ -396,7 +396,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                     alignItems: 'center',
                     gap: 10,
                     padding: '12px 14px',
-                    borderRadius: 12,
+                    borderRadius: 9999,
                     border: '1px solid rgba(104, 104, 104,0.3)',
                     background: 'var(--danger-glow)',
                     color: 'var(--danger)',
@@ -470,7 +470,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
             <button
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
-                padding: '8px 14px', borderRadius: 12, cursor: 'pointer',
+                padding: '8px 14px', borderRadius: 9999, cursor: 'pointer',
                 transition: 'all 0.15s ease',
                 background: isHabitsActive ? 'rgba(85, 85, 85, 0.08)' : 'transparent',
                 border: `1px solid ${isHabitsActive ? 'rgba(85, 85, 85, 0.25)' : 'transparent'}`,
@@ -519,7 +519,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                         }}
                         style={{
                           display: 'flex', alignItems: 'center', gap: 10,
-                          padding: '10px 12px', borderRadius: 10, cursor: 'pointer',
+                          padding: '10px 12px', borderRadius: 9999, cursor: 'pointer',
                           background: active ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
                           border: 'none',
                           color: active ? 'var(--text-primary)' : 'var(--text-muted)',
@@ -550,7 +550,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
             <button
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
-                padding: '8px 14px', borderRadius: 12, cursor: 'pointer',
+                padding: '8px 14px', borderRadius: 9999, cursor: 'pointer',
                 transition: 'all 0.15s ease',
                 background: isTripActive ? 'rgba(85, 85, 85, 0.08)' : 'transparent',
                 border: `1px solid ${isTripActive ? 'rgba(85, 85, 85, 0.25)' : 'transparent'}`,
@@ -597,7 +597,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                         onClick={() => setTripDropdownOpen(false)}
                         style={{
                           display: 'flex', alignItems: 'center', gap: 10,
-                          padding: '10px 12px', borderRadius: 10,
+                          padding: '10px 12px', borderRadius: 9999,
                           background: active ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
                           color: active ? 'var(--text-primary)' : 'var(--text-muted)',
                           fontSize: 13,
@@ -632,7 +632,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                 alignItems: 'center',
                 gap: 8,
                 padding: '10px 16px',
-                borderRadius: 12,
+                borderRadius: 9999,
                 border: 'none',
                 background: 'var(--accent-primary)',
                 color: 'var(--accent-on-primary)',
@@ -650,7 +650,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
               style={{
                 width: 40,
                 height: 40,
-                borderRadius: 12,
+                borderRadius: 9999,
                 border: '1px solid var(--border-default)',
                 background: 'var(--bg-tertiary)',
                 color: 'var(--text-secondary)',
@@ -668,7 +668,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                 style={{
                   width: 40,
                   height: 40,
-                  borderRadius: 12,
+                  borderRadius: 9999,
                   background: 'var(--bg-elevated)',
                   border: '1px solid var(--border-default)',
                   display: 'flex',
@@ -689,7 +689,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
               style={{
                 width: 40,
                 height: 40,
-                borderRadius: 12,
+                borderRadius: 9999,
                 border: '1px solid rgba(104, 104, 104,0.3)',
                 background: 'var(--danger-glow)',
                 color: 'var(--danger)',
@@ -709,7 +709,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
             style={{
               width: 48,
               height: 44,
-              borderRadius: 12,
+              borderRadius: 9999,
               border: 'none',
               background: 'transparent',
               display: 'flex',

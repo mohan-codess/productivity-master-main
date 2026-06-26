@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect, useTransition } from 'react';
-import { Plus, CalendarClock, Zap } from 'lucide-react';
+import { Plus, CalendarClock, Zap, ChevronDown, ChevronUp } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import type { HabitWithEntry, Habit, HabitEntry, Category } from '@/types/habit';
@@ -45,6 +45,7 @@ export default function TodayHabits({ habits: initialHabits, loading }: TodayHab
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryError, setCategoryError] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
+  const [showAllHabits, setShowAllHabits] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -580,14 +581,29 @@ export default function TodayHabits({ habits: initialHabits, loading }: TodayHab
           />
         </div>
       ) : (
-        <HabitList
-          habits={habits}
-          loading={loading}
-          onToggle={handleToggle}
-          onEdit={handleEdit}
-          onArchive={handleArchive}
-          onDelete={handleDelete}
-        />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <HabitList
+            habits={showAllHabits ? habits : habits.slice(0, 2)}
+            loading={loading}
+            onToggle={handleToggle}
+            onEdit={handleEdit}
+            onArchive={handleArchive}
+            onDelete={handleDelete}
+          />
+          {habits.length > 2 && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowAllHabits(!showAllHabits)}
+              fullWidth
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                {showAllHabits ? 'Show less' : `Show all habits (${habits.length})`}
+                {showAllHabits ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </div>
+            </Button>
+          )}
+        </div>
       )}
 
       {/* HabitForm modal */}
