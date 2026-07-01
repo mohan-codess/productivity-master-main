@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
     // -c:a aac -b:a 64k: highly compressed AAC audio
     // -map 0:v:0 -map 0:a?: map first video track, and audio track if it exists (prevents failure if no audio)
     // -movflags +faststart: optimize for fast web loading
-    const ffmpegCmd = `ffmpeg -i "${inputPath}" -c:v libx264 -preset superfast -crf 30 -vf "scale='min(480,iw)':-2" -c:a aac -b:a 64k -map 0:v:0 -map 0:a? -movflags +faststart -y "${outputPath}"`;
+    const ffmpegCmd = `ffmpeg -i "${inputPath}" -c:v libx264 -preset superfast -crf 30 -vf "scale='min(480,iw)':-2" -pix_fmt yuv420p -c:a aac -b:a 64k -map 0:v:0 -map 0:a? -movflags +faststart -y "${outputPath}"`;
 
     try {
       await execPromise(ffmpegCmd);
