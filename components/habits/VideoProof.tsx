@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
-import { Upload, Trash2, Film, Loader2 } from 'lucide-react';
+import { Upload, Trash2, Film, Loader2, Download } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/Toast';
 
@@ -28,12 +28,14 @@ export default function VideoProof({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [loadingUrl, setLoadingUrl] = useState(false);
 
   // Generate signed URL when videoPath changes
   useEffect(() => {
     if (!videoPath) {
       setSignedUrl(null);
+      setDownloadUrl(null);
       return;
     }
 
@@ -42,16 +44,19 @@ export default function VideoProof({
       setLoadingUrl(true);
       try {
         const supabase = createClient();
-        const { data, error } = await supabase.storage
-          .from('habit-videos')
-          .createSignedUrl(videoPath, 3600); // 1 hour expiration
+        const [normalRes, dlRes] = await Promise.all([
+          supabase.storage.from('habit-videos').createSignedUrl(videoPath, 3600),
+          supabase.storage.from('habit-videos').createSignedUrl(videoPath, 3600, { download: 'habit-proof.mp4' })
+        ]);
 
         if (active) {
-          if (error) {
-            console.error('Error creating signed URL:', error);
+          if (normalRes.error) {
+            console.error('Error creating signed URL:', normalRes.error);
             setSignedUrl(null);
-          } else if (data?.signedUrl) {
-            setSignedUrl(data.signedUrl);
+            setDownloadUrl(null);
+          } else {
+            setSignedUrl(normalRes.data?.signedUrl || null);
+            setDownloadUrl(dlRes.data?.signedUrl || null);
           }
         }
       } catch (err) {
@@ -243,13 +248,36 @@ export default function VideoProof({
           )}
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '2px 4px' }}>
-            <span style={{ fontSize: 11, color: 'var(--text-muted)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '75%' }}>
+            <span style={{ fontSize: 11, color: 'var(--text-muted)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '50%' }}>
               {videoPath.split('/').pop()?.replace(/^\d+-/, '')}
             </span>
-            <button
-              type="button"
-              disabled={uploading}
-              onClick={handleDelete}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              {downloadUrl && (
+                <a
+                  href={downloadUrl}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    textDecoration: 'none',
+                    color: accentColor,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    padding: '4px 8px',
+                    borderRadius: 6,
+                    transition: 'background 0.2s',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                >
+                  <Download size={13} />
+                  Download
+                </a>
+              )}
+              <button
+                type="button"
+                disabled={uploading}
+                onClick={handleDelete}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -270,6 +298,7 @@ export default function VideoProof({
               {uploading ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
               Delete
             </button>
+            </div>
           </div>
         </div>
       ) : (
