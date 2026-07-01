@@ -168,6 +168,7 @@ export default function TodayHabits({ habits: initialHabits, loading }: TodayHab
                     is_completed: completed,
                     value: null,
                     notes: null,
+                    video_path: null,
                     completed_at: completed ? new Date().toISOString() : null,
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),

@@ -15,6 +15,8 @@ import { useToast } from '@/components/ui/Toast';
 import type { Habit } from '@/types/habit';
 import type { HabitEntry } from '@/types/entry';
 import type { HeatmapCell, DailyTrend } from '@/types/analytics';
+import { createClient } from '@/lib/supabase/client';
+import VideoProof from '@/components/habits/VideoProof';
 
 interface HabitDetailData extends Omit<Habit, 'category'> {
   entries: HabitEntry[];
@@ -63,12 +65,21 @@ export default function HabitDetailPage({ params }: { params: Promise<{ id: stri
   const [trends, setTrends] = useState<DailyTrend[]>([]);
   const [heatmap, setHeatmap] = useState<HeatmapCell[]>([]);
   const [showAllEntries, setShowAllEntries] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   // Edit modal state for past entries
   const [editEntry, setEditEntry] = useState<HabitEntry | null>(null);
   const [editCompleted, setEditCompleted] = useState(false);
   const [editNotes, setEditNotes] = useState('');
   const [editSaving, setEditSaving] = useState(false);
+
+  // Fetch user ID
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setUserId(data.user?.id ?? null);
+    });
+  }, []);
 
   const openEditModal = (entry: HabitEntry) => {
     setEditEntry(entry);
@@ -93,6 +104,7 @@ export default function HabitDetailPage({ params }: { params: Promise<{ id: stri
           entry_date: editEntry.entry_date,
           is_completed: editCompleted,
           notes: editNotes.trim() || null,
+          video_path: editEntry.video_path ?? null,
         }),
       });
       if (!res.ok) {
@@ -453,6 +465,24 @@ export default function HabitDetailPage({ params }: { params: Promise<{ id: stri
                     &ldquo;{entry.notes}&rdquo;
                   </span>
                 )}
+                {entry.video_path && (
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--accent-primary)',
+                      background: 'var(--accent-glow)',
+                      padding: '2px 6px',
+                      borderRadius: 4,
+                      fontWeight: 600,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      flexShrink: 0,
+                    }}
+                  >
+                    📹 Video Proof
+                  </span>
+                )}
               </div>
               <span
                 style={{
@@ -538,6 +568,36 @@ export default function HabitDetailPage({ params }: { params: Promise<{ id: stri
                 }}
               />
             </div>
+
+            {/* Video Proof Component */}
+            <VideoProof
+              habitId={habit.id}
+              entryDate={editEntry.entry_date}
+              userId={userId}
+              videoPath={editEntry.video_path}
+              onUploadSuccess={(path) => {
+                setHabit((prev) => {
+                  if (!prev) return prev;
+                  const entries = prev.entries.map((e) =>
+                    e.id === editEntry.id ? { ...e, is_completed: true, video_path: path } : e
+                  );
+                  return { ...prev, entries };
+                });
+                setEditCompleted(true);
+                setEditEntry((prev) => (prev ? { ...prev, is_completed: true, video_path: path } : null));
+              }}
+              onDeleteSuccess={() => {
+                setHabit((prev) => {
+                  if (!prev) return prev;
+                  const entries = prev.entries.map((e) =>
+                    e.id === editEntry.id ? { ...e, video_path: null } : e
+                  );
+                  return { ...prev, entries };
+                });
+                setEditEntry((prev) => (prev ? { ...prev, video_path: null } : null));
+              }}
+              accentColor="var(--accent-primary)"
+            />
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
               <Button variant="ghost" onClick={closeEditModal} disabled={editSaving}>

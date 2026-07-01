@@ -6,6 +6,7 @@ export const entrySchema = z.object({
   is_completed: z.boolean(),
   value: z.number().nullable().optional(),
   notes: z.string().max(1000).nullable().optional(),
+  video_path: z.string().max(1000).nullable().optional(),
 });
 
 export type EntryFormValues = z.infer<typeof entrySchema>;

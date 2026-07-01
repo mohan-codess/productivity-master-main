@@ -66,7 +66,7 @@ export async function PATCH(req: NextRequest) {
       return err('Invalid entry payload', 422);
     }
 
-    const { habit_id, entry_date, is_completed, value, notes } = parsed.data;
+    const { habit_id, entry_date, is_completed, value, notes, video_path } = parsed.data;
 
     // Verify the habit belongs to this user
     const { data: habit, error: habitErr } = await supabase
@@ -85,7 +85,7 @@ export async function PATCH(req: NextRequest) {
     interface EntryPayload {
       habit_id: string; user_id: string; entry_date: string;
       is_completed: boolean; completed_at: string | null; updated_at: string;
-      value?: number | null; notes?: string | null;
+      value?: number | null; notes?: string | null; video_path?: string | null;
     }
     const payload: EntryPayload = {
       habit_id,
@@ -97,6 +97,7 @@ export async function PATCH(req: NextRequest) {
     };
     if (value !== undefined) payload.value = value;
     if (notes !== undefined) payload.notes = notes;
+    if (video_path !== undefined) payload.video_path = video_path;
 
     const { data: entry, error } = await supabase
       .from('habit_entries')

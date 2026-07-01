@@ -7,6 +7,7 @@ export interface HabitEntry {
   value: number | null;
   notes: string | null;
   completed_at: string | null;
+  video_path: string | null;
   created_at: string;
   updated_at: string;
 }

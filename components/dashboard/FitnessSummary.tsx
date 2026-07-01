@@ -21,6 +21,10 @@ import type { Trip, TripExpense, TripSettlement } from '@/lib/trip/types';
 import { computeSettlement } from '@/lib/trip/settlement';
 import { formatINR, daysUntil } from '@/lib/trip/format';
 import { generateHabitReport } from '@/lib/utils/pdf';
+import { createClient } from '@/lib/supabase/client';
+import VideoProof from '@/components/habits/VideoProof';
+import type { HabitEntry } from '@/types/entry';
+import { useToast } from '@/components/ui/Toast';
 
 interface FitnessSummaryProps {
   stats: OverviewStats | null;
@@ -362,10 +366,12 @@ function HabitDetailSheet({
   const PURPLE_LIGHT = `color-mix(in srgb, ${PURPLE} 14%, transparent)`;
   const PURPLE_MID = `color-mix(in srgb, ${PURPLE} 24%, transparent)`;
 
-  const [entries, setEntries] = useState<{ entry_date: string; is_completed: boolean }[]>([]);
+  const { toast } = useToast();
+  const [entries, setEntries] = useState<HabitEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
-  // Edit state
+  // Edit state for habit properties
   const [editMode, setEditMode] = useState(false);
   const [editName, setEditName] = useState(habit.name);
   const [editIcon, setEditIcon] = useState(habit.icon ?? 'circle-check');
@@ -380,6 +386,77 @@ function HabitDetailSheet({
 
   // Backfill: which day is currently being saved (for disabling during the request)
   const [savingDay, setSavingDay] = useState<string | null>(null);
+
+  const todayDate = new Date();
+  const todayLocal = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
+
+  // Log edit details state
+  const [activeLogDate, setActiveLogDate] = useState<string>(todayLocal);
+  const [notesInput, setNotesInput] = useState('');
+  const [savingNotes, setSavingNotes] = useState(false);
+
+  const activeEntry = entries.find((e) => e.entry_date === activeLogDate);
+
+  useEffect(() => {
+    setNotesInput(activeEntry?.notes ?? '');
+  }, [activeLogDate, activeEntry?.notes]);
+
+  // Fetch authenticated user ID on mount
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setUserId(data.user?.id ?? null);
+    });
+  }, []);
+
+  const saveActiveNotes = async () => {
+    setSavingNotes(true);
+    try {
+      const res = await fetch('/api/entries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          habit_id: habit.id,
+          entry_date: activeLogDate,
+          is_completed: activeEntry?.is_completed ?? false,
+          notes: notesInput.trim() || null,
+          video_path: activeEntry?.video_path ?? null,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to save notes');
+
+      // Update entries list
+      setEntries((prev) => {
+        const exists = prev.some((e) => e.entry_date === activeLogDate);
+        if (exists) {
+          return prev.map((e) => e.entry_date === activeLogDate ? { ...e, notes: notesInput.trim() || null } : e);
+        } else {
+          return [
+            ...prev,
+            {
+              id: `temp-${Date.now()}`,
+              habit_id: habit.id,
+              user_id: userId || '',
+              entry_date: activeLogDate,
+              is_completed: false,
+              notes: notesInput.trim() || null,
+              video_path: null,
+              value: null,
+              completed_at: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            } as HabitEntry,
+          ];
+        }
+      });
+      toast('Notes saved', 'success');
+    } catch (err) {
+      console.error(err);
+      toast('Failed to save notes', 'error');
+    } finally {
+      setSavingNotes(false);
+    }
+  };
 
   const saveEdit = async () => {
     if (!editName.trim()) return;
@@ -426,9 +503,6 @@ function HabitDetailSheet({
 
   const [monthOffset, setMonthOffset] = useState(0); // 0 = current month, -1 = last month …
 
-  const todayDate = new Date();
-  const todayLocal = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
-
   const displayDate = new Date(todayDate.getFullYear(), todayDate.getMonth() + monthOffset, 1);
   const calYear = displayDate.getFullYear();
   const calMonth = displayDate.getMonth();
@@ -440,6 +514,7 @@ function HabitDetailSheet({
   const firstDow = new Date(calYear, calMonth, 1).getDay();
 
   const entryMap = new Map(entries.map((e) => [e.entry_date, e.is_completed]));
+  const entryVideoMap = new Map(entries.map((e) => [e.entry_date, e.video_path]));
 
   // Build padded calendar cells
   type CalCell = { date: string; day: number; completed: boolean; isToday: boolean; isFuture: boolean };
@@ -458,22 +533,67 @@ function HabitDetailSheet({
     if (ds > todayLocal) return;              // never the future
     const next = !currentlyCompleted;
     setSavingDay(ds);
-    // optimistic
-    setEntries((prev) => [...prev.filter((e) => e.entry_date !== ds), { entry_date: ds, is_completed: next }]);
+    
+    // optimistic update keeping existing properties
+    setEntries((prev) => {
+      const existing = prev.find((e) => e.entry_date === ds);
+      if (existing) {
+        return prev.map((e) => e.entry_date === ds ? { ...e, is_completed: next } : e);
+      } else {
+        return [
+          ...prev,
+          {
+            id: `temp-${Date.now()}`,
+            habit_id: habit.id,
+            user_id: userId || '',
+            entry_date: ds,
+            is_completed: next,
+            notes: null,
+            video_path: null,
+            value: null,
+            completed_at: next ? new Date().toISOString() : null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          } as HabitEntry,
+        ];
+      }
+    });
+
     try {
       const res = await fetch('/api/entries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ habit_id: habit.id, entry_date: ds, is_completed: next }),
+        body: JSON.stringify({
+          habit_id: habit.id,
+          entry_date: ds,
+          is_completed: next,
+          notes: activeEntry?.notes ?? null,
+          video_path: activeEntry?.video_path ?? null,
+        }),
       });
       if (!res.ok) throw new Error(`save failed ${res.status}`);
       // keep the main dashboard list in sync when today is changed here
       if (ds === todayLocal) {
-        onUpdate({ id: habit.id, todayEntry: { habit_id: habit.id, is_completed: next } as HabitWithEntry['todayEntry'] });
+        onUpdate({
+          id: habit.id,
+          todayEntry: {
+            ...(habit.todayEntry || {}),
+            habit_id: habit.id,
+            entry_date: ds,
+            is_completed: next,
+          } as any
+        });
       }
     } catch (e) {
       console.error('[markDay] backfill failed, reverting:', e);
-      setEntries((prev) => [...prev.filter((e) => e.entry_date !== ds), { entry_date: ds, is_completed: currentlyCompleted }]);
+      setEntries((prev) => {
+        const existing = prev.find((e) => e.entry_date === ds);
+        if (existing) {
+          return prev.map((e) => e.entry_date === ds ? { ...e, is_completed: currentlyCompleted } : e);
+        } else {
+          return prev.filter((e) => e.entry_date !== ds);
+        }
+      });
     } finally {
       setSavingDay(null);
     }
@@ -808,21 +928,27 @@ function HabitDetailSheet({
                         const txtColor = cell.completed ? '#fff' : cell.isToday ? PURPLE_HEX : cell.isFuture ? 'var(--drag-handle)' : TEXT_MUTED;
                         const interactive = !cell.isFuture;
                         const isSaving = savingDay === cell.date;
+                        const isSelected = cell.date === activeLogDate;
+                        const hasVideo = entryVideoMap.get(cell.date);
                         return (
                           <div
                             key={di}
-                            onClick={interactive && !isSaving ? () => markDay(cell.date, cell.completed) : undefined}
-                            title={interactive ? (cell.completed ? 'Tap to unmark' : 'Tap to mark done') : undefined}
+                            onClick={interactive && !isSaving ? () => setActiveLogDate(cell.date) : undefined}
+                            title={interactive ? (cell.completed ? 'Tap to view details/unmark' : 'Tap to view details/mark done') : undefined}
                             style={{
                               flex: '1 1 0', minWidth: 0,
                               height: CELL_H,
                               borderRadius: 8,
                               background: bg,
-                              border: cell.isToday ? `2px solid ${PURPLE}` : '2px solid transparent',
+                              border: isSelected
+                                ? '2px solid var(--text-primary)'
+                                : cell.isToday
+                                  ? `2px solid ${PURPLE}`
+                                  : '2px solid transparent',
                               boxShadow: cell.completed ? `0 2px 6px ${PURPLE_MID}` : 'none',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                               fontSize: 11,
-                              fontWeight: cell.isToday ? 800 : 500,
+                              fontWeight: cell.isToday || isSelected ? 800 : 500,
                               color: txtColor,
                               cursor: interactive ? 'pointer' : 'default',
                               opacity: isSaving ? 0.5 : 1,
@@ -830,7 +956,19 @@ function HabitDetailSheet({
                               WebkitTapHighlightColor: 'transparent',
                             }}
                           >
-                            {cell.day}
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', position: 'relative', width: '100%' }}>
+                              <span>{cell.day}</span>
+                              {hasVideo && (
+                                <div style={{
+                                  position: 'absolute',
+                                  bottom: 3,
+                                  width: 4,
+                                  height: 4,
+                                  borderRadius: '50%',
+                                  background: cell.completed ? '#fff' : PURPLE,
+                                }} />
+                              )}
+                            </div>
                           </div>
                         );
                       })}
@@ -858,6 +996,132 @@ function HabitDetailSheet({
                 </div>
               );
             })()}
+          </div>
+
+          {/* Daily Log & Video Proof Card */}
+          <div style={{ ...GLASS_NESTED, borderRadius: 18, padding: '16px 14px', marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <h3 style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: TEXT_DARK, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <CalendarCheck size={16} color={PURPLE} />
+                Log: {activeLogDate === todayLocal ? 'Today' : activeLogDate}
+              </h3>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 13, color: TEXT_DARK, fontWeight: 600 }}>
+                <input
+                  type="checkbox"
+                  checked={activeEntry?.is_completed ?? false}
+                  disabled={savingDay === activeLogDate}
+                  onChange={() => markDay(activeLogDate, activeEntry?.is_completed ?? false)}
+                  style={{ width: 16, height: 16, accentColor: PURPLE }}
+                />
+                Completed
+              </label>
+            </div>
+
+            {/* Notes input */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                Entry Notes
+              </span>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  type="text"
+                  value={notesInput}
+                  onChange={(e) => setNotesInput(e.target.value)}
+                  placeholder="What did you achieve today?"
+                  style={{
+                    flex: 1,
+                    background: 'var(--input-bg)',
+                    border: '1.5px solid var(--input-border)',
+                    borderRadius: 8,
+                    padding: '6px 10px',
+                    fontSize: 13,
+                    color: TEXT_DARK,
+                    outline: 'none',
+                    fontFamily: 'inherit',
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      void saveActiveNotes();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={saveActiveNotes}
+                  disabled={savingNotes || notesInput === (activeEntry?.notes ?? '')}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: 8,
+                    border: 'none',
+                    background: notesInput === (activeEntry?.notes ?? '') ? 'var(--bg-tertiary)' : PURPLE,
+                    color: notesInput === (activeEntry?.notes ?? '') ? 'var(--text-muted)' : 'var(--accent-on-primary)',
+                    fontSize: 12.5,
+                    fontWeight: 600,
+                    cursor: notesInput === (activeEntry?.notes ?? '') ? 'default' : 'pointer',
+                  }}
+                >
+                  {savingNotes ? 'Saving' : 'Save'}
+                </button>
+              </div>
+            </div>
+
+            {/* Video Proof Component */}
+            <VideoProof
+              habitId={habit.id}
+              entryDate={activeLogDate}
+              userId={userId}
+              videoPath={activeEntry?.video_path ?? null}
+              onUploadSuccess={(path) => {
+                setEntries((prev) => {
+                  const exists = prev.some((e) => e.entry_date === activeLogDate);
+                  if (exists) {
+                    return prev.map((e) => e.entry_date === activeLogDate ? { ...e, is_completed: true, video_path: path } : e);
+                  } else {
+                    return [
+                      ...prev,
+                      {
+                        id: `temp-${Date.now()}`,
+                        habit_id: habit.id,
+                        user_id: userId || '',
+                        entry_date: activeLogDate,
+                        is_completed: true,
+                        video_path: path,
+                        notes: null,
+                        value: null,
+                        completed_at: new Date().toISOString(),
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString(),
+                      } as HabitEntry,
+                    ];
+                  }
+                });
+                onUpdate({
+                  id: habit.id,
+                  todayEntry: activeLogDate === todayLocal ? ({
+                    ...(habit.todayEntry || {}),
+                    habit_id: habit.id,
+                    entry_date: activeLogDate,
+                    is_completed: true,
+                    video_path: path,
+                  } as any) : habit.todayEntry,
+                });
+              }}
+              onDeleteSuccess={() => {
+                setEntries((prev) => prev.map((e) => e.entry_date === activeLogDate ? { ...e, video_path: null } : e));
+                onUpdate({
+                  id: habit.id,
+                  todayEntry: activeLogDate === todayLocal ? ({
+                    ...(habit.todayEntry || {}),
+                    habit_id: habit.id,
+                    entry_date: activeLogDate,
+                    is_completed: true,
+                    video_path: null,
+                  } as any) : habit.todayEntry,
+                });
+              }}
+              accentColor={PURPLE}
+            />
           </div>
 
           {/* Completion rate bar */}
