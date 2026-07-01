@@ -206,7 +206,6 @@ export default function VideoProof({
             </div>
           ) : signedUrl ? (
             <video
-              src={signedUrl}
               controls
               playsInline
               style={{
@@ -216,7 +215,10 @@ export default function VideoProof({
                 background: '#000',
                 outline: 'none',
               }}
-            />
+            >
+              <source src={signedUrl} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           ) : (
             <div style={{ height: 120, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
               <Film size={20} style={{ color: 'var(--danger)' }} />
