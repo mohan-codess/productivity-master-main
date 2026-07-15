@@ -30,9 +30,11 @@ export default function VideoProof({
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [loadingUrl, setLoadingUrl] = useState(false);
+  const [videoError, setVideoError] = useState(false);
 
   // Generate signed URL when videoPath changes
   useEffect(() => {
+    setVideoError(false);
     if (!videoPath) {
       setSignedUrl(null);
       setDownloadUrl(null);
@@ -210,20 +212,35 @@ export default function VideoProof({
               <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Loading video...</span>
             </div>
           ) : signedUrl ? (
-            <video
-              controls
-              playsInline
-              style={{
-                width: '100%',
-                maxHeight: 240,
-                borderRadius: 12,
-                background: '#000',
-                outline: 'none',
-              }}
-            >
-              <source src={signedUrl} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+            <>
+              {videoError ? (
+                <div style={{ height: 160, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', background: 'var(--bg-tertiary)', borderRadius: 12, border: '1px solid var(--border-default)', width: '100%' }}>
+                  <Film size={24} style={{ color: 'var(--text-muted)' }} />
+                  <span style={{ fontSize: 13, color: 'var(--text-primary)', textAlign: 'center', fontWeight: 600 }}>
+                    Codec/Format not playable in this browser
+                  </span>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', maxWidth: '90%', lineHeight: 1.4 }}>
+                    QuickTime (.mov) videos are not natively supported by Chrome/Edge on Windows. You can download the file to view it, or install FFmpeg on the server for automatic .mp4 conversion.
+                  </span>
+                </div>
+              ) : (
+                <video
+                  controls
+                  playsInline
+                  src={signedUrl}
+                  onError={() => setVideoError(true)}
+                  style={{
+                    width: '100%',
+                    maxHeight: 240,
+                    borderRadius: 12,
+                    background: '#000',
+                    outline: 'none',
+                  }}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              )}
+            </>
           ) : (
             <div style={{ height: 120, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
               <Film size={20} style={{ color: 'var(--danger)' }} />

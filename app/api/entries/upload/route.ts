@@ -180,27 +180,36 @@ export async function POST(req: NextRequest) {
     // -movflags +faststart: optimize for fast web loading
     const ffmpegCmd = `ffmpeg -i "${inputPath}" -c:v libx264 -preset superfast -crf 30 -vf "scale='min(480,iw)':-2" -pix_fmt yuv420p -c:a aac -b:a 64k -map 0:v:0 -map 0:a? -movflags +faststart -y "${outputPath}"`;
 
+    let finalBuffer: Buffer;
+    let finalContentType = 'video/mp4';
+    let finalFilename = '';
+
     try {
       await execPromise(ffmpegCmd);
+      if (!fs.existsSync(outputPath)) {
+        throw new Error('FFmpeg completed but output file not found');
+      }
+      finalBuffer = fs.readFileSync(outputPath);
+      const safeName = file.filename.replace(/[^\w.\-]+/g, '_').replace(/\.[^/.]+$/, '') + '.mp4';
+      finalFilename = safeName;
+      finalContentType = 'video/mp4';
     } catch (ffmpegErr: any) {
-      console.error('[FFmpeg transcode error]', ffmpegErr);
-      return err(`Video conversion failed: ${ffmpegErr.message || 'FFmpeg process error'}`, 500);
+      console.warn('[FFmpeg transcode skipped/failed, falling back to original upload]', ffmpegErr.message || ffmpegErr);
+      // Fallback: upload the raw original file
+      finalBuffer = file.data;
+      const originalExt = path.extname(file.filename) || '.mp4';
+      const safeName = file.filename.replace(/[^\w.\-]+/g, '_').replace(/\.[^/.]+$/, '') + originalExt;
+      finalFilename = safeName;
+      finalContentType = file.contentType || 'video/mp4';
     }
 
-    // Read the transcoded video file
-    if (!fs.existsSync(outputPath)) {
-      return err('Failed to produce converted MP4 file', 500);
-    }
-    const outputBuffer = fs.readFileSync(outputPath);
-
-    // Upload the transcoded MP4 to Supabase Storage
-    const safeName = file.filename.replace(/[^\w.\-]+/g, '_').replace(/\.[^/.]+$/, '') + '.mp4';
-    const storagePath = `${user.id}/${habitId}-${entryDate}-${Date.now()}-${safeName}`;
+    // Upload to Supabase Storage
+    const storagePath = `${user.id}/${habitId}-${entryDate}-${Date.now()}-${finalFilename}`;
 
     const { error: uploadErr } = await supabase.storage
       .from('habit-videos')
-      .upload(storagePath, outputBuffer, {
-        contentType: 'video/mp4',
+      .upload(storagePath, finalBuffer, {
+        contentType: finalContentType,
         upsert: true,
       });
 
