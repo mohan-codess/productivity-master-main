@@ -17,9 +17,6 @@ import { useAccentColor } from '@/components/ui/ThemeProvider';
 import type { OverviewStats } from '@/types/analytics';
 import type { HabitWithEntry, Habit } from '@/types/habit';
 import { todayString } from '@/lib/utils/dates';
-import type { Trip, TripExpense, TripSettlement } from '@/lib/trip/types';
-import { computeSettlement } from '@/lib/trip/settlement';
-import { formatINR, daysUntil } from '@/lib/trip/format';
 import { generateHabitReport } from '@/lib/utils/pdf';
 import { createClient } from '@/lib/supabase/client';
 import VideoProof from '@/components/habits/VideoProof';
@@ -34,9 +31,6 @@ interface FitnessSummaryProps {
   initials?: string;
   email?: string;
   onBackToHub?: () => void;
-  activeTrip?: Trip | null;
-  tripExpenses?: TripExpense[];
-  tripSettlements?: TripSettlement[];
 }
 
 const PURPLE = 'var(--accent-primary)';
@@ -1832,11 +1826,7 @@ export default function FitnessSummary({
   weekData,
   displayName = 'User',
   initials = '?',
-  email = '',
   onBackToHub,
-  activeTrip = null,
-  tripExpenses = [],
-  tripSettlements = [],
 }: FitnessSummaryProps) {
   const accentHex = useAccentColor();
   const [localHabits, setLocalHabits] = useState<HabitWithEntry[]>(habits);

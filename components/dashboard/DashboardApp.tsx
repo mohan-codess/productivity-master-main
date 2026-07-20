@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 import FitnessSummary from '@/components/dashboard/FitnessSummary';
 import type { OverviewStats as OverviewStatsType } from '@/types/analytics';
 import type { HabitWithEntry } from '@/types/habit';
-import type { Trip, TripExpense, TripSettlement } from '@/lib/trip/types';
 
 interface DashboardAppProps {
   stats: OverviewStatsType | null;
@@ -22,10 +21,6 @@ interface DashboardAppProps {
   heroPct: number;
   dayName: string;
   dateStr: string;
-  activeTripName?: string;
-  activeTrip?: Trip | null;
-  tripExpenses?: TripExpense[];
-  tripSettlements?: TripSettlement[];
 }
 
 function FaceIdGlyph({ size = 68 }: { size?: number }) {
@@ -62,10 +57,6 @@ export default function DashboardApp({
   heroPct,
   dayName,
   dateStr,
-  activeTripName,
-  activeTrip,
-  tripExpenses,
-  tripSettlements,
 }: DashboardAppProps) {
   const router = useRouter();
   const [activeApp, setActiveApp] = useState<'habits' | null>('habits');
@@ -408,9 +399,6 @@ export default function DashboardApp({
         initials={initials}
         email={email}
         onBackToHub={handleBackToHub}
-        activeTrip={activeTrip ?? null}
-        tripExpenses={tripExpenses ?? []}
-        tripSettlements={tripSettlements ?? []}
       />
     );
   }
@@ -672,9 +660,6 @@ export default function DashboardApp({
         displayName={formattedName}
         initials={initials}
         email={email}
-        activeTrip={activeTrip ?? null}
-        tripExpenses={tripExpenses ?? []}
-        tripSettlements={tripSettlements ?? []}
       />
       <DevicesModal isOpen={devicesOpen} onClose={() => setDevicesOpen(false)} />
     </>

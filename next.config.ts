@@ -123,6 +123,11 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  
+  // Silence turbopack workspace root warning
+  turbopack: {
+    root: __dirname,
+  },
 };
 
 export default nextConfig;

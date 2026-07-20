@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { Search, Plus, LayoutDashboard, Dumbbell, BarChart2, Trophy, Settings2, Zap, LogOut, X, Mountain, ChevronDown, CalendarDays, Brain, Map, DollarSign, Package, BookOpen, FileText } from 'lucide-react';
-import Link from 'next/link';
+import { Search, Plus, LayoutDashboard, Dumbbell, BarChart2, Trophy, Settings2, LogOut, X, ChevronDown, CalendarDays } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
@@ -11,29 +10,11 @@ import NotificationBell from '@/components/layout/NotificationBell';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const NAV = [
-  { label: 'Dashboard',    tab: 'home',         icon: LayoutDashboard, color: 'var(--accent-primary)', glow: 'rgba(85, 85, 85,0.15)' },
-  { label: 'Habits',       tab: 'habits',       icon: Dumbbell,        color: 'var(--accent-primary)', glow: 'rgba(85, 85, 85,0.15)' },
-  { label: 'Analytics',    tab: 'analytics',    icon: BarChart2,       color: 'var(--accent-primary)', glow: 'rgba(85, 85, 85,0.15)' },
-  { label: 'Achievements', tab: 'achievements', icon: Trophy,          color: '#a6a6a6',               glow: 'rgba(166, 166, 166,0.15)' },
-  { label: 'Year in Review', tab: 'year-review',  icon: CalendarDays,  color: '#a6a6a6',               glow: 'rgba(166, 166, 166,0.15)' },
-  { label: 'Settings',     tab: 'settings',     icon: Settings2,       color: 'var(--accent-primary)', glow: 'rgba(85, 85, 85,0.15)' },
-];
-
 const HABIT_SUB_NAV = [
   { label: 'Overview',       tab: 'habits',       icon: LayoutDashboard },
   { label: 'Analytics',      tab: 'analytics',    icon: BarChart2 },
   { label: 'Achievements',   tab: 'achievements', icon: Trophy },
   { label: 'Year in Review', tab: 'year-review',  icon: CalendarDays },
-];
-
-const TRIP_SUB_NAV = [
-  { label: 'Dashboard',  href: '/trip',              icon: Map },
-  { label: 'Itinerary',  href: '/trip/itinerary',    icon: CalendarDays },
-  { label: 'Expenses',   href: '/trip/expenses',     icon: DollarSign },
-  { label: 'Packing',    href: '/trip/packing',      icon: Package },
-  { label: 'Bookings',   href: '/trip/bookings',     icon: BookOpen },
-  { label: 'Documents',  href: '/trip/documents',    icon: FileText },
 ];
 
 interface TopbarProps {
@@ -49,9 +30,7 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
   const [paletteOpen, setPalette] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [habitExpanded, setHabitExpanded] = useState(true);
-  const [tripExpanded, setTripExpanded] = useState(false);
   const [habitDropdownOpen, setHabitDropdownOpen] = useState(false);
-  const [tripDropdownOpen, setTripDropdownOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
@@ -88,7 +67,6 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
     .slice(0, 2);
 
   const isHabitsActive = ['home', 'habits', 'analytics', 'achievements', 'year-review', 'settings'].includes(activeTab);
-  const isTripActive = pathname?.startsWith('/trip') ?? false;
 
   return (
     <>
@@ -223,9 +201,6 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
 
               {/* All nav pages */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1, overflowY: 'auto' }}>
-
-                {/* — Habit Tracker Group — */}
-                {/* Habit Tracker white pill button header */}
                 <button
                   onClick={() => setHabitExpanded(o => !o)}
                   style={{
@@ -251,7 +226,6 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                   </motion.span>
                 </button>
 
-                {/* Habit sub-items */}
                 <AnimatePresence initial={false}>
                   {habitExpanded && (
                     <motion.div
@@ -295,78 +269,6 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
                     </motion.div>
                   )}
                 </AnimatePresence>
-
-                <div style={{ height: 8 }} />
-
-                {/* Trip Planner white pill button header */}
-                <button
-                  onClick={() => setTripExpanded(o => !o)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '11px 16px', borderRadius: 14, cursor: 'pointer',
-                    background: '#ffffff',
-                    border: 'none',
-                    color: '#1a1a1a',
-                    fontWeight: 700, width: '100%', textAlign: 'left',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.18)',
-                    transition: 'opacity 0.15s',
-                    marginBottom: 2,
-                  }}
-                >
-                  <Mountain size={16} strokeWidth={2.2} color="#1a1a1a" />
-                  <span style={{ fontSize: 14, flex: 1, letterSpacing: '-0.01em' }}>Trip Planner</span>
-                  <motion.span
-                    animate={{ rotate: tripExpanded ? 180 : 0 }}
-                    transition={{ duration: 0.22 }}
-                    style={{ display: 'flex', alignItems: 'center' }}
-                  >
-                    <ChevronDown size={16} color="#555" />
-                  </motion.span>
-                </button>
-
-                {/* Trip sub-items */}
-                <AnimatePresence initial={false}>
-                  {tripExpanded && (
-                    <motion.div
-                      key="trip-sub"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.22, ease: 'easeInOut' }}
-                      style={{ overflow: 'hidden' }}
-                    >
-                      <div style={{
-                        display: 'flex', flexDirection: 'column', gap: 0,
-                        paddingLeft: 16,
-                        borderLeft: '2px solid rgba(255,255,255,0.12)',
-                        marginLeft: 10,
-                        marginBottom: 8,
-                      }}>
-                        {TRIP_SUB_NAV.map(({ label, href, icon: Icon }) => (
-                          <Link
-                            key={href}
-                            href={href}
-                            onClick={() => setSidebarOpen(false)}
-                            style={{
-                              display: 'flex', alignItems: 'center', gap: 10,
-                              padding: '9px 10px', borderRadius: 9999,
-                              color: 'rgba(255,255,255,0.55)',
-                              fontWeight: 400, textDecoration: 'none',
-                              transition: 'all 0.15s',
-                              fontSize: 13.5,
-                            }}
-                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLElement).style.color = '#ffffff'; }}
-                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)'; }}
-                          >
-                            <Icon size={15} strokeWidth={1.6} />
-                            <span>{label}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
               </div>
 
               {/* Search & Logout at Bottom */}
@@ -540,83 +442,6 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
               )}
             </AnimatePresence>
           </div>
-
-          {/* Trip Planner Dropdown */}
-          <div
-            onMouseEnter={() => setTripDropdownOpen(true)}
-            onMouseLeave={() => setTripDropdownOpen(false)}
-            style={{ position: 'relative' }}
-          >
-            <button
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '8px 14px', borderRadius: 9999, cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                background: isTripActive ? 'rgba(85, 85, 85, 0.08)' : 'transparent',
-                border: `1px solid ${isTripActive ? 'rgba(85, 85, 85, 0.25)' : 'transparent'}`,
-                color: isTripActive ? 'var(--text-primary)' : 'var(--text-muted)',
-                fontWeight: 600,
-                fontSize: 13,
-              }}
-            >
-              <Mountain size={15} />
-              <span>Trip Planner</span>
-              <ChevronDown size={14} style={{ transform: tripDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-            </button>
-
-            <AnimatePresence>
-              {tripDropdownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    marginTop: 6,
-                    width: 200,
-                    background: 'var(--bg-card)',
-                    border: '1px solid var(--border-default)',
-                    borderRadius: 14,
-                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)',
-                    padding: 8,
-                    zIndex: 100,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 3,
-                  }}
-                >
-                  {TRIP_SUB_NAV.map(({ label, href, icon: Icon }) => {
-                    const active = pathname === href;
-                    return (
-                      <Link
-                        key={href}
-                        href={href}
-                        onClick={() => setTripDropdownOpen(false)}
-                        style={{
-                          display: 'flex', alignItems: 'center', gap: 10,
-                          padding: '10px 12px', borderRadius: 9999,
-                          background: active ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
-                          color: active ? 'var(--text-primary)' : 'var(--text-muted)',
-                          fontSize: 13,
-                          fontWeight: active ? 600 : 400,
-                          textDecoration: 'none',
-                          transition: 'all 0.15s',
-                        }}
-                        onMouseEnter={(e) => { if (!active) { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
-                        onMouseLeave={(e) => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; } }}
-                      >
-                        <Icon size={14} />
-                        <span>{label}</span>
-                      </Link>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
         </nav>
 
         {/* Right: Desktop actions (lg+ only) + Mobile hamburger menu */}
@@ -742,4 +567,3 @@ export default function Topbar({ activeTab = 'home', onTabChange }: TopbarProps)
     </>
   );
 }
-

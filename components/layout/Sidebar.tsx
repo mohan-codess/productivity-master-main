@@ -2,33 +2,20 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
   CheckCircle2,
   LayoutDashboard,
   BarChart3,
   Trophy,
-  Sparkles,
   CalendarCheck,
-  Compass,
-  Receipt,
-  Luggage,
-  MapPin,
-  ExternalLink,
   Settings,
   Sun,
   Moon,
-  ArrowLeft,
   ChevronDown,
-  User,
   Search,
-  Mountain,
-  Receipt as ReceiptIcon,
   X,
-  Shield,
-  HelpCircle,
   Menu,
-  Plus,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
@@ -36,26 +23,12 @@ import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { useTheme } from '@/components/ui/ThemeProvider';
 import CommandPalette from '@/components/layout/CommandPalette';
 import DevicesModal from '@/components/settings/DevicesModal';
-import Modal from '@/components/ui/Modal';
-import { DynamicIcon } from '@/lib/icons';
-
-interface Trip {
-  id: string;
-  name: string;
-  travelers: string[];
-  start_date: string;
-  end_date: string;
-}
-
-interface SidebarProps {
-  activeTrip?: Trip | null;
-}
 
 // Sidebar nav row — filled when active, hover tint otherwise.
 function NavItem({
-  icon, label, active = false, href, onClick,
+  label, active = false, href, onClick,
 }: {
-  icon: React.ReactNode; label: string; active?: boolean; href: string; onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  icon?: React.ReactNode; label: string; active?: boolean; href: string; onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }) {
   return (
     <Link
@@ -80,9 +53,9 @@ function NavItem({
 
 // Expandable white-button group with sub-items
 function NavGroup({
-  icon, label, expanded, onToggle, children,
+  label, expanded, onToggle, children,
 }: {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   label: string;
   expanded: boolean;
   onToggle: () => void;
@@ -90,7 +63,6 @@ function NavGroup({
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-      {/* Accent pill header button */}
       <button
         onClick={onToggle}
         style={{
@@ -114,7 +86,6 @@ function NavGroup({
         </motion.span>
       </button>
 
-      {/* Sub-items with animated expand */}
       <AnimatePresence initial={false}>
         {expanded && (
           <motion.div
@@ -146,7 +117,7 @@ function NavGroup({
 function SubNavItem({
   icon, label, active = false, href, onClick,
 }: {
-  icon: React.ReactNode; label: string; active?: boolean; href: string; onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  icon?: React.ReactNode; label: string; active?: boolean; href: string; onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }) {
   return (
     <Link
@@ -164,23 +135,19 @@ function SubNavItem({
       onMouseEnter={(e) => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
       onMouseLeave={(e) => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; } }}
     >
+      {icon}
       {label}
     </Link>
   );
 }
 
-export default function Sidebar({ activeTrip: initialActiveTrip = null }: SidebarProps) {
+export default function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const { theme, toggle } = useTheme();
 
   const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [activeTrip, setActiveTrip] = useState<Trip | null>(initialActiveTrip);
   const [habitNavOpen, setHabitNavOpen] = useState(pathname.startsWith('/dashboard') || pathname === '/dashboard');
-  const [tripNavOpen, setTripNavOpen] = useState(pathname.startsWith('/trip') || pathname === '/trip');
-  
-  const [menuOpen, setMenuOpen] = useState(false);
   const [devicesOpen, setDevicesOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -194,85 +161,12 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
     }
   }, [isCollapsed]);
 
-  // Switch/Create Trip states
-  const [trips, setTrips] = useState<Trip[]>([]);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newTripName, setNewTripName] = useState('');
-  const [newTripStart, setNewTripStart] = useState('');
-  const [newTripEnd, setNewTripEnd] = useState('');
-  const [newTripBudget, setNewTripBudget] = useState('80000');
-  const [newTripTravelers, setNewTripTravelers] = useState('Mohan, Charles');
-  const [createError, setCreateError] = useState('');
-  const [creating, setCreating] = useState(false);
-
   const isDark = theme === 'dark';
 
-  // Get current user details
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
   }, [supabase]);
 
-  // Fetch list of trips for trip selection
-  useEffect(() => {
-    if (user) {
-      supabase
-        .from('trip_trips')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .then(({ data }) => {
-          if (data) setTrips(data as Trip[]);
-        });
-    }
-  }, [user, supabase]);
-
-  const handleCreateTrip = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTripName.trim()) return;
-    setCreating(true);
-    setCreateError('');
-    try {
-      const travelersList = newTripTravelers
-        .split(',')
-        .map((t) => t.trim())
-        .filter((t) => t.length > 0);
-
-      if (travelersList.length === 0) {
-        setCreateError('Add at least one traveler');
-        setCreating(false);
-        return;
-      }
-
-      const tripRes = await fetch('/api/trip/trip', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: newTripName.trim(),
-          start_date: newTripStart,
-          end_date: newTripEnd,
-          total_budget: Number(newTripBudget) || 0,
-          travelers: travelersList,
-        }),
-      });
-      const tripJson = await tripRes.json();
-      if (!tripRes.ok) throw new Error(tripJson.error || 'Failed to create trip');
-
-      const selectRes = await fetch('/api/trip/select', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tripId: tripJson.data.id }),
-      });
-      if (!selectRes.ok) throw new Error('Failed to activate new trip');
-
-      setShowCreateModal(false);
-      window.location.reload();
-    } catch (err) {
-      setCreateError(err instanceof Error ? err.message : 'Something went wrong');
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  // Command palette listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -283,31 +177,6 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-  // Fetch active trip context dynamically if not passed via layout props
-  useEffect(() => {
-    if (!activeTrip && user) {
-      (async () => {
-        try {
-          const res = await fetch('/api/trip/select');
-          if (res.ok) {
-            // Wait, does /api/trip/select support GET to fetch current trip?
-            // Actually, server layouts already fetch this and pass as prop.
-            // But if needed, we can query trip list from supabase client directly:
-            const { data: trips } = await supabase
-              .from('trip_trips')
-              .select('*')
-              .order('created_at', { ascending: false });
-            if (trips && trips.length > 0) {
-              setActiveTrip(trips[0] as Trip);
-            }
-          }
-        } catch (e) {
-          // ignore
-        }
-      })();
-    }
-  }, [activeTrip, user, supabase]);
 
   const displayName =
     (user?.user_metadata?.full_name as string | undefined) ??
@@ -321,35 +190,28 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
     .toUpperCase()
     .slice(0, 2);
 
-  const navigateTo = (path: string) => {
-    router.push(path);
-  };
-
   const isOverviewActive = pathname === '/dashboard';
   const isAnalyticsActive = pathname === '/dashboard/analytics';
   const isAchievementsActive = pathname === '/dashboard/achievements';
   const isYearActive = pathname === '/dashboard/year-in-review';
   const isSettingsActive = pathname === '/dashboard/settings';
 
-  const isTripOverviewActive = pathname === '/trip';
-  const isTripItineraryActive = pathname === '/trip/itinerary';
-  const isTripExpensesActive = pathname === '/trip/expenses';
-  const isTripPackingActive = pathname === '/trip/packing';
-  const isTripBookingsActive = pathname === '/trip/bookings';
-  const isTripDocumentsActive = pathname === '/trip/documents';
-
   return (
     <>
-      {/* Floating Expand Toggle (Visible only when collapsed) */}
       {isCollapsed && (
         <button
           onClick={() => setIsCollapsed(false)}
           className="hf-desktop-sidebar-toggle"
           style={{
-            position: 'fixed', top: 22, left: 16, zIndex: 60,
-            background: 'var(--bg-tertiary)', border: '1px solid var(--border-default)',
-            borderRadius: 8, padding: 8, cursor: 'pointer',
-            color: 'var(--text-primary)', display: 'none'
+            position: 'fixed', top: 20, left: 20, zIndex: 60,
+            width: 42, height: 42, borderRadius: 14,
+            background: 'var(--bg-card)',
+            backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--border-default)',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.22)',
+            cursor: 'pointer', color: 'var(--text-primary)',
+            alignItems: 'center', justifyContent: 'center',
+            display: 'none',
           }}
           title="Show Sidebar"
         >
@@ -360,15 +222,26 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
       <aside
         className="hf-desktop-sidebar no-print"
         style={{
-          position: 'fixed', top: 0, left: 0, bottom: 0, width: 220, zIndex: 50,
+          position: 'fixed',
+          top: 16,
+          left: 16,
+          bottom: 16,
+          height: 'calc(100vh - 32px)',
+          width: 240,
+          zIndex: 50,
+          display: 'flex',
           flexDirection: 'column',
-          background: 'var(--bg-tertiary)',
-          borderRight: '1px solid var(--border-default)',
-          padding: '22px 16px 20px',
+          background: 'var(--bg-card)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          border: '1px solid var(--border-default)',
+          borderRadius: 24,
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.20), 0 4px 16px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.12)',
+          padding: '20px 14px 16px',
           overflowY: 'auto',
+          transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease',
         }}
       >
-        {/* Brand */}
         <div style={{ padding: '2px 8px 22px' }}>
           <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 11, textDecoration: 'none' }}>
             <span style={{ fontSize: 28, lineHeight: 1 }}>🙂</span>
@@ -379,8 +252,6 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
           </Link>
         </div>
 
-
-        {/* Search */}
         <button
           onClick={() => setPaletteOpen(true)}
           style={{
@@ -395,11 +266,8 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
           <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-dimmed)' }}>⌘K</span>
         </button>
 
-        {/* Nav */}
         <p style={{ margin: '0 0 8px', padding: '0 12px', fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--text-dimmed)' }}>Menu</p>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-
-          {/* Habit Tracker group */}
           <NavGroup
             icon={<CheckCircle2 size={16} strokeWidth={2.2} color="#1a1a1a" />}
             label="Habit Tracker"
@@ -412,62 +280,9 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
             <SubNavItem icon={<CalendarCheck size={15} />} label="Year in Review" active={isYearActive} href="/dashboard/year-in-review" />
           </NavGroup>
 
-          {/* Trip Planner group */}
-          <NavGroup
-            icon={<Compass size={16} strokeWidth={2.2} color="#1a1a1a" />}
-            label="Trip Planner"
-            expanded={tripNavOpen}
-            onToggle={() => setTripNavOpen(o => !o)}
-          >
-            <div style={{ padding: '4px 14px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Trip</span>
-              <select
-                value={activeTrip?.id ?? ''}
-                onChange={async (e) => {
-                  const selectedId = e.target.value;
-                  if (selectedId === 'create-new') {
-                    setShowCreateModal(true);
-                    return;
-                  }
-                  await fetch('/api/trip/select', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tripId: selectedId }),
-                  });
-                  window.location.reload();
-                }}
-                style={{
-                  width: '100%',
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-default)',
-                  borderRadius: 8,
-                  padding: '6px 10px',
-                  fontSize: 12.5,
-                  color: 'var(--text-primary)',
-                  outline: 'none',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
-                {!activeTrip && <option value="" disabled>Select a trip...</option>}
-                {trips.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-                <option value="create-new">+ Create new trip...</option>
-              </select>
-            </div>
-            <SubNavItem icon={<Compass size={15} />} label="Dashboard" active={isTripOverviewActive} href="/trip" />
-            <SubNavItem icon={<CalendarCheck size={15} />} label="Itinerary" active={isTripItineraryActive} href="/trip/itinerary" />
-            <SubNavItem icon={<Receipt size={15} />} label="Expenses" active={isTripExpensesActive} href="/trip/expenses" />
-            <SubNavItem icon={<Luggage size={15} />} label="Packing" active={isTripPackingActive} href="/trip/packing" />
-            <SubNavItem icon={<MapPin size={15} />} label="Bookings" active={isTripBookingsActive} href="/trip/bookings" />
-            <SubNavItem icon={<ExternalLink size={15} />} label="Documents" active={isTripDocumentsActive} href="/trip/documents" />
-          </NavGroup>
-
           <NavItem icon={<Settings size={18} />} label="Settings" active={isSettingsActive} href="/dashboard/settings" />
         </nav>
 
-        {/* Footer */}
         <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 6, paddingTop: 18 }}>
           <button
             onClick={() => setIsCollapsed(true)}
@@ -526,7 +341,6 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
         </div>
       </aside>
 
-      {/* Mobile Topbar (Fixed header visible < 1024px) */}
       <div className="hf-mobile-nav no-print" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 40, padding: '16px 16px 0 16px' }}>
         <header
           style={{
@@ -544,7 +358,6 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
             width: '100%',
           }}
         >
-        {/* Brand */}
         <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <span style={{ fontSize: 26, lineHeight: 1 }}>🙂</span>
           <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
@@ -553,7 +366,6 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
           </div>
         </Link>
 
-        {/* Hamburger Menu Toggle */}
         <button
           onClick={() => setMobileOpen(true)}
           aria-label="Open menu"
@@ -572,11 +384,9 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
       </div>
       <div className="hf-mobile-nav no-print" style={{ height: 88, width: '100%', flexShrink: 0 }} aria-hidden="true" />
 
-      {/* Mobile Drawer (visible only < 1024px) */}
       <AnimatePresence>
         {mobileOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -591,7 +401,6 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
               }}
               className="hf-mobile-nav"
             />
-            {/* Drawer Panel */}
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
@@ -613,7 +422,6 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
               }}
               className="hf-mobile-nav"
             >
-              {/* Drawer Brand Header with Close button */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                 <Link href="/dashboard" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
                   <div style={{
@@ -641,7 +449,6 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
                 </button>
               </div>
 
-              {/* Search */}
               <button
                 onClick={() => { setPaletteOpen(true); setMobileOpen(false); }}
                 style={{
@@ -658,7 +465,6 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
 
               <p style={{ margin: '0 0 8px', padding: '0 12px', fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--text-dimmed)' }}>Menu</p>
               <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {/* Habit Tracker group */}
                 <NavGroup
                   icon={<CheckCircle2 size={16} strokeWidth={2.2} color="#1a1a1a" />}
                   label="Habit Tracker"
@@ -671,63 +477,9 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
                   <SubNavItem icon={<CalendarCheck size={15} />} label="Year in Review" active={isYearActive} href="/dashboard/year-in-review" onClick={() => setMobileOpen(false)} />
                 </NavGroup>
 
-                {/* Trip Planner group */}
-                <NavGroup
-                  icon={<Compass size={16} strokeWidth={2.2} color="#1a1a1a" />}
-                  label="Trip Planner"
-                  expanded={tripNavOpen}
-                  onToggle={() => setTripNavOpen(o => !o)}
-                >
-                  <div style={{ padding: '4px 10px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Trip</span>
-                    <select
-                      value={activeTrip?.id ?? ''}
-                      onChange={async (e) => {
-                        const selectedId = e.target.value;
-                        if (selectedId === 'create-new') {
-                          setMobileOpen(false);
-                          setShowCreateModal(true);
-                          return;
-                        }
-                        await fetch('/api/trip/select', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ tripId: selectedId }),
-                        });
-                        window.location.reload();
-                      }}
-                      style={{
-                        width: '100%',
-                        background: 'var(--bg-secondary)',
-                        border: '1px solid var(--border-default)',
-                        borderRadius: 8,
-                        padding: '6px 10px',
-                        fontSize: 12.5,
-                        color: 'var(--text-primary)',
-                        outline: 'none',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
-                    >
-                      {!activeTrip && <option value="" disabled>Select a trip...</option>}
-                      {trips.map((t) => (
-                        <option key={t.id} value={t.id}>{t.name}</option>
-                      ))}
-                      <option value="create-new">+ Create new trip...</option>
-                    </select>
-                  </div>
-                  <SubNavItem icon={<Compass size={15} />} label="Dashboard" active={isTripOverviewActive} href="/trip" onClick={() => setMobileOpen(false)} />
-                  <SubNavItem icon={<CalendarCheck size={15} />} label="Itinerary" active={isTripItineraryActive} href="/trip/itinerary" onClick={() => setMobileOpen(false)} />
-                  <SubNavItem icon={<Receipt size={15} />} label="Expenses" active={isTripExpensesActive} href="/trip/expenses" onClick={() => setMobileOpen(false)} />
-                  <SubNavItem icon={<Luggage size={15} />} label="Packing" active={isTripPackingActive} href="/trip/packing" onClick={() => setMobileOpen(false)} />
-                  <SubNavItem icon={<MapPin size={15} />} label="Bookings" active={isTripBookingsActive} href="/trip/bookings" onClick={() => setMobileOpen(false)} />
-                  <SubNavItem icon={<ExternalLink size={15} />} label="Documents" active={isTripDocumentsActive} href="/trip/documents" onClick={() => setMobileOpen(false)} />
-                </NavGroup>
-
                 <NavItem icon={<Settings size={18} />} label="Settings" active={isSettingsActive} href="/dashboard/settings" onClick={() => setMobileOpen(false)} />
               </nav>
 
-              {/* Footer */}
               <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 6, paddingTop: 18 }}>
                 <button
                   onClick={() => { toggle(); setMobileOpen(false); }}
@@ -775,167 +527,8 @@ export default function Sidebar({ activeTrip: initialActiveTrip = null }: Sideba
         )}
       </AnimatePresence>
 
-      {/* Create New Trip Modal */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create New Trip">
-        <form onSubmit={handleCreateTrip} style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '4px 0' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-              Trip Name / Destination
-            </label>
-            <input
-              type="text"
-              required
-              value={newTripName}
-              onChange={(e) => { setNewTripName(e.target.value); setCreateError(''); }}
-              placeholder="e.g. Summer in Tokyo, Paris Weekend"
-              style={{
-                width: '100%',
-                background: 'var(--bg-tertiary)',
-                border: '1px solid var(--border-default)',
-                borderRadius: 9999,
-                padding: '12px 14px',
-                fontSize: 14,
-                color: 'var(--text-primary)',
-                outline: 'none',
-              }}
-            />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-                Start Date
-              </label>
-              <input
-                type="date"
-                required
-                value={newTripStart}
-                onChange={(e) => setNewTripStart(e.target.value)}
-                style={{
-                  width: '100%',
-                  background: 'var(--bg-tertiary)',
-                  border: '1px solid var(--border-default)',
-                  borderRadius: 9999,
-                  padding: '12px 14px',
-                  fontSize: 14,
-                  color: 'var(--text-primary)',
-                  outline: 'none',
-                }}
-              />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-                End Date
-              </label>
-              <input
-                type="date"
-                required
-                value={newTripEnd}
-                onChange={(e) => setNewTripEnd(e.target.value)}
-                style={{
-                  width: '100%',
-                  background: 'var(--bg-tertiary)',
-                  border: '1px solid var(--border-default)',
-                  borderRadius: 9999,
-                  padding: '12px 14px',
-                  fontSize: 14,
-                  color: 'var(--text-primary)',
-                  outline: 'none',
-                }}
-              />
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-              Total Budget (INR)
-            </label>
-            <input
-              type="number"
-              required
-              value={newTripBudget}
-              onChange={(e) => setNewTripBudget(e.target.value)}
-              placeholder="e.g. 50000"
-              style={{
-                width: '100%',
-                background: 'var(--bg-tertiary)',
-                border: '1px solid var(--border-default)',
-                borderRadius: 9999,
-                padding: '12px 14px',
-                fontSize: 14,
-                color: 'var(--text-primary)',
-                outline: 'none',
-              }}
-            />
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-              Travelers (comma separated)
-            </label>
-            <input
-              type="text"
-              required
-              value={newTripTravelers}
-              onChange={(e) => { setNewTripTravelers(e.target.value); setCreateError(''); }}
-              placeholder="Mohan, Charles, Alice"
-              style={{
-                width: '100%',
-                background: 'var(--bg-tertiary)',
-                border: '1px solid var(--border-default)',
-                borderRadius: 9999,
-                padding: '12px 14px',
-                fontSize: 14,
-                color: 'var(--text-primary)',
-                outline: 'none',
-              }}
-            />
-          </div>
-
-          {createError && (
-            <p style={{ margin: 0, fontSize: 13, color: 'var(--danger)', fontWeight: 600 }}>{createError}</p>
-          )}
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
-            <button
-              type="button"
-              onClick={() => setShowCreateModal(false)}
-              style={{
-                padding: '10px 16px',
-                borderRadius: 9999,
-                border: '1px solid var(--border-default)',
-                background: 'transparent',
-                color: 'var(--text-secondary)',
-                cursor: 'pointer',
-                fontSize: 14,
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={creating}
-              style={{
-                padding: '10px 16px',
-                borderRadius: 9999,
-                border: 'none',
-                background: 'var(--accent-primary)',
-                color: 'var(--accent-on-primary)',
-                cursor: 'pointer',
-                fontSize: 14,
-                fontWeight: 700,
-              }}
-            >
-              {creating ? 'Creating...' : 'Create Trip'}
-            </button>
-          </div>
-        </form>
-      </Modal>
-
       <CommandPalette isOpen={paletteOpen} onClose={() => setPaletteOpen(false)} />
-      
       <DevicesModal isOpen={devicesOpen} onClose={() => setDevicesOpen(false)} />
-
     </>
   );
 }

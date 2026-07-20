@@ -16,19 +16,11 @@ function LoginContent() {
   const [password, setPassword] = useState('');
   const [showPw,   setShowPw]   = useState(false);
   const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState(
-    searchParams.get('error') ||
-    (searchParams.get('reason') === 'timeout'
-      ? 'You were signed out due to inactivity. Please log in again.'
-      : '')
-  );
+  const [error,    setError]    = useState(searchParams.get('error') || '');
 
   useEffect(() => {
     const urlError = searchParams.get('error');
     if (urlError) setError(urlError);
-    else if (searchParams.get('reason') === 'timeout') {
-      setError('You were signed out due to inactivity. Please log in again.');
-    }
   }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
