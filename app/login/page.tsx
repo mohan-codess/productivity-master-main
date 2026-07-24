@@ -52,23 +52,23 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-[#07090E] text-white font-['Inter'] p-4 sm:p-6 selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen w-full flex flex-col justify-center items-center overflow-y-auto bg-[#07090E] text-white font-['Inter'] p-3.5 sm:p-6 py-6 sm:py-8 selection:bg-indigo-500 selection:text-white">
       {/* Background Radial Orbs & Ambient Glow */}
       <motion.div
         animate={{
           scale: [1, 1.2, 1],
-          opacity: [0.35, 0.6, 0.35],
+          opacity: [0.35, 0.55, 0.35],
         }}
         transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[38rem] h-[38rem] rounded-full bg-gradient-to-tr from-indigo-600/35 via-purple-600/25 to-pink-500/20 blur-[110px] pointer-events-none"
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[34rem] h-[34rem] rounded-full bg-gradient-to-tr from-indigo-600/35 via-purple-600/25 to-pink-500/20 blur-[100px] pointer-events-none"
       />
       <motion.div
         animate={{
           scale: [1, 1.15, 1],
-          opacity: [0.2, 0.4, 0.2],
+          opacity: [0.2, 0.35, 0.2],
         }}
         transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-        className="absolute bottom-10 right-10 w-[24rem] h-[24rem] rounded-full bg-gradient-to-br from-blue-600/20 via-teal-500/15 to-purple-600/20 blur-[90px] pointer-events-none"
+        className="absolute bottom-10 right-10 w-[22rem] h-[22rem] rounded-full bg-gradient-to-br from-blue-600/20 via-teal-500/15 to-purple-600/20 blur-[90px] pointer-events-none"
       />
 
       {/* Modern Grid Lines Overlay */}
@@ -76,35 +76,35 @@ function LoginContent() {
 
       {/* Main Glass Card */}
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        initial={{ opacity: 0, y: 16, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 w-full max-w-[430px] rounded-3xl bg-[#11141F]/90 backdrop-blur-2xl border border-white/15 p-7 sm:p-9 shadow-[0_24px_64px_rgba(0,0,0,0.7),0_2px_8px_rgba(255,255,255,0.06)_inset]"
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 w-full max-w-[400px] rounded-2xl sm:rounded-3xl bg-[#11141F]/95 backdrop-blur-2xl border border-white/15 p-4.5 sm:p-7 shadow-[0_24px_64px_rgba(0,0,0,0.75),0_2px_8px_rgba(255,255,255,0.06)_inset]"
       >
         {/* Brand Header */}
-        <div className="flex flex-col items-center text-center mb-7">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-indigo-600 flex items-center justify-center shadow-[0_0_24px_rgba(99,102,241,0.5)] border border-white/20 mb-3">
-            <Sparkles size={24} className="text-white" />
+        <div className="flex flex-col items-center text-center mb-3.5 sm:mb-5">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-indigo-600 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.5)] border border-white/20 mb-2">
+            <Sparkles size={18} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold font-['Outfit'] tracking-tight text-white">
+          <h1 className="text-lg sm:text-xl font-bold font-['Outfit'] tracking-tight text-white">
             Productivity Master
           </h1>
-          <p className="text-[13.5px] text-white/60 mt-1">
+          <p className="text-[11.5px] sm:text-xs text-white/60 mt-0.5">
             Build daily habits that actually stick
           </p>
         </div>
 
         {/* Tab Switcher (Sign In / Create Account) */}
-        <div className="flex items-center p-1 rounded-xl bg-white/[0.06] border border-white/12 mb-7">
+        <div className="flex items-center p-1 rounded-xl bg-white/[0.06] border border-white/12 mb-3.5 sm:mb-4.5">
           <button
             type="button"
-            className="flex-1 py-2.5 text-[13.5px] font-semibold rounded-lg bg-indigo-600 text-white shadow-[0_2px_10px_rgba(79,70,229,0.4)] transition-all cursor-default text-center"
+            className="flex-1 py-1.5 sm:py-2 text-[12px] sm:text-[13px] font-semibold rounded-lg bg-indigo-600 text-white shadow-[0_2px_10px_rgba(79,70,229,0.4)] transition-all cursor-default text-center"
           >
             Sign In
           </button>
           <Link
             href="/signup"
-            className="flex-1 py-2.5 text-[13.5px] font-medium rounded-lg text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-center"
+            className="flex-1 py-1.5 sm:py-2 text-[12px] sm:text-[13px] font-medium rounded-lg text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-center"
           >
             Create Account
           </Link>
@@ -118,7 +118,7 @@ function LoginContent() {
         >
           {error && (
             <div
-              className="mb-5 p-3.5 rounded-xl flex items-start gap-3 text-xs font-medium"
+              className="mb-3 p-2.5 rounded-xl flex items-start gap-2 text-xs font-medium"
               style={{
                 background: error.includes('successfully')
                   ? 'rgba(16, 185, 129, 0.15)'
@@ -130,11 +130,11 @@ function LoginContent() {
               }}
             >
               {error.includes('successfully') ? (
-                <CheckCircle2 size={16} className="mt-0.5 shrink-0" />
+                <CheckCircle2 size={15} className="mt-0.5 shrink-0" />
               ) : (
-                <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                <AlertCircle size={15} className="mt-0.5 shrink-0" />
               )}
-              <div className="flex flex-col gap-1 leading-relaxed">
+              <div className="flex flex-col gap-0.5 leading-relaxed">
                 <span>{error}</span>
                 {!error.includes('successfully') && (
                   <Link
@@ -150,14 +150,14 @@ function LoginContent() {
         </motion.div>
 
         {/* Form */}
-        <form onSubmit={handleLogin} className="flex flex-col gap-4.5">
+        <form onSubmit={handleLogin} className="flex flex-col gap-2.5 sm:gap-3">
           {/* Email Field */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[13px] font-semibold text-white/90 px-0.5">
+          <div className="flex flex-col gap-1">
+            <label className="text-[12px] sm:text-[12.5px] font-semibold text-white/90 px-0.5">
               Email Address
             </label>
             <div className="relative flex items-center">
-              <Mail size={17} className="absolute left-3.5 z-10 text-white/50 pointer-events-none" />
+              <Mail size={15} className="absolute left-3 z-10 text-white/50 pointer-events-none" />
               <input
                 type="email"
                 value={email}
@@ -165,27 +165,27 @@ function LoginContent() {
                 placeholder="you@example.com"
                 autoComplete="email"
                 required
-                style={{ paddingLeft: '44px', paddingRight: '16px' }}
-                className="w-full py-3 bg-white/[0.07] hover:bg-white/[0.09] focus:bg-white/[0.1] border border-white/15 focus:border-indigo-500 rounded-xl text-white text-[14px] placeholder:text-white/35 outline-none focus:ring-4 focus:ring-indigo-500/20 transition-all"
+                style={{ paddingLeft: '38px', paddingRight: '14px' }}
+                className="w-full py-2 sm:py-2.5 bg-white/[0.07] hover:bg-white/[0.09] focus:bg-white/[0.1] border border-white/15 focus:border-indigo-500 rounded-xl text-white text-[13px] placeholder:text-white/35 outline-none focus:ring-4 focus:ring-indigo-500/20 transition-all"
               />
             </div>
           </div>
 
           {/* Password Field */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1">
             <div className="flex justify-between items-center px-0.5">
-              <label className="text-[13px] font-semibold text-white/90">
+              <label className="text-[12px] sm:text-[12.5px] font-semibold text-white/90">
                 Password
               </label>
               <Link
                 href="/forgot-password"
-                className="text-[12.5px] font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+                className="text-[11px] sm:text-[12px] font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
               >
                 Forgot password?
               </Link>
             </div>
             <div className="relative flex items-center">
-              <Lock size={17} className="absolute left-3.5 z-10 text-white/50 pointer-events-none" />
+              <Lock size={15} className="absolute left-3 z-10 text-white/50 pointer-events-none" />
               <input
                 type={showPw ? 'text' : 'password'}
                 value={password}
@@ -193,16 +193,16 @@ function LoginContent() {
                 placeholder="Enter password"
                 autoComplete="current-password"
                 required
-                style={{ paddingLeft: '44px', paddingRight: '44px' }}
-                className="w-full py-3 bg-white/[0.07] hover:bg-white/[0.09] focus:bg-white/[0.1] border border-white/15 focus:border-indigo-500 rounded-xl text-white text-[14px] placeholder:text-white/35 outline-none focus:ring-4 focus:ring-indigo-500/20 transition-all"
+                style={{ paddingLeft: '38px', paddingRight: '38px' }}
+                className="w-full py-2 sm:py-2.5 bg-white/[0.07] hover:bg-white/[0.09] focus:bg-white/[0.1] border border-white/15 focus:border-indigo-500 rounded-xl text-white text-[13px] placeholder:text-white/35 outline-none focus:ring-4 focus:ring-indigo-500/20 transition-all"
               />
               <button
                 type="button"
                 onClick={() => setShowPw(!showPw)}
-                className="absolute right-3.5 z-10 p-1 text-white/40 hover:text-white transition-colors cursor-pointer"
+                className="absolute right-3 z-10 p-1 text-white/40 hover:text-white transition-colors cursor-pointer"
                 aria-label={showPw ? 'Hide password' : 'Show password'}
               >
-                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
           </div>
@@ -211,25 +211,25 @@ function LoginContent() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2.5 w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl text-white font-semibold text-[14.5px] bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 hover:from-indigo-400 hover:to-purple-500 border border-white/20 shadow-[0_4px_20px_rgba(79,70,229,0.4)] hover:shadow-[0_6px_24px_rgba(79,70,229,0.5)] active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+            className="mt-1 w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl text-white font-semibold text-[13px] sm:text-[13.5px] bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 hover:from-indigo-400 hover:to-purple-500 border border-white/20 shadow-[0_4px_16px_rgba(79,70,229,0.4)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.5)] active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? (
               <span className="flex items-center gap-2">
-                <Zap size={16} className="animate-spin" /> Signing in…
+                <Zap size={14} className="animate-spin" /> Signing in…
               </span>
             ) : (
               <>
                 <span>Sign in to Dashboard</span>
-                <ArrowRight size={17} strokeWidth={2.5} />
+                <ArrowRight size={15} strokeWidth={2.5} />
               </>
             )}
           </button>
         </form>
 
         {/* Divider */}
-        <div className="flex items-center gap-3 my-6">
+        <div className="flex items-center gap-3 my-3 sm:my-3.5">
           <div className="flex-1 h-px bg-white/15" />
-          <span className="text-[11px] uppercase tracking-wider text-white/50 font-semibold">
+          <span className="text-[10px] sm:text-[10.5px] uppercase tracking-wider text-white/50 font-semibold">
             Or continue with
           </span>
           <div className="flex-1 h-px bg-white/15" />
@@ -239,9 +239,9 @@ function LoginContent() {
         <SocialAuth loading={loading} setLoading={setLoading} />
 
         {/* Security & Features Badge */}
-        <div className="mt-7 pt-5 border-t border-white/12 flex items-center justify-center gap-4 text-white/40 text-xs">
+        <div className="mt-3.5 sm:mt-4 pt-2.5 border-t border-white/12 flex items-center justify-center gap-3 text-white/40 text-[10.5px] sm:text-[11px]">
           <span className="flex items-center gap-1.5">
-            <ShieldCheck size={14} className="text-emerald-400" /> 256-bit Encrypted
+            <ShieldCheck size={13} className="text-emerald-400" /> 256-bit Encrypted
           </span>
           <span>•</span>
           <span>Privacy Guaranteed</span>
