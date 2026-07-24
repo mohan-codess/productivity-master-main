@@ -78,14 +78,6 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, color }: CalendarH
     return { weeks, monthLabels: monthLabelsList };
   }, [data]);
 
-  if (weeks.length === 0) {
-    return (
-      <div style={{ color: 'var(--text-muted)', fontSize: 14, textAlign: 'center', padding: '32px 0' }}>
-        No data yet — start tracking habits to see your heatmap.
-      </div>
-    );
-  }
-
   const CELL_SIZE = 16;
   const CELL_GAP = 4;
   const DAY_LABEL_WIDTH = 32;
@@ -97,6 +89,14 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, color }: CalendarH
       scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
     }
   }, [weeks]);
+
+  if (weeks.length === 0) {
+    return (
+      <div style={{ color: 'var(--text-muted)', fontSize: 14, textAlign: 'center', padding: '32px 0' }}>
+        No data yet — start tracking habits to see your heatmap.
+      </div>
+    );
+  }
 
   return (
     <motion.div

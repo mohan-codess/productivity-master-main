@@ -85,7 +85,7 @@ function ForgotPasswordContent() {
             Reset your password
           </h1>
           <p style={{ fontSize: 13.5, color: 'var(--text-muted)', marginTop: 'var(--space-2)', letterSpacing: '-0.005em' }}>
-            We'll send you a secure link to reset your password.
+            We&apos;ll send you a secure link to reset your password.
           </p>
         </div>
 

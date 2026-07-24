@@ -3,8 +3,20 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, AlertCircle, CheckCircle2, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import {
+  Eye,
+  EyeOff,
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  Mail,
+  Lock,
+  User,
+  Sparkles,
+  ShieldCheck,
+  Zap,
+} from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import SocialAuth from '@/components/auth/SocialAuth';
 import { getSiteUrl } from '@/lib/utils/url';
@@ -21,15 +33,33 @@ function SignupContent() {
   const [error, setError] = useState(searchParams.get('error') || '');
   const [success, setSuccess] = useState(false);
 
-  // Sync error from URL if it changes
   useEffect(() => {
     const urlError = searchParams.get('error');
     if (urlError) setError(urlError);
   }, [searchParams]);
 
+  // Password strength calculation
+  const getPasswordStrength = (pw: string) => {
+    if (!pw) return { score: 0, label: '', color: '' };
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[A-Z]/.test(pw) || /[^A-Za-z0-9]/.test(pw)) score++;
+    if (pw.length >= 12) score++;
+
+    if (score <= 1) return { score: 1, label: 'Weak', color: 'bg-rose-500' };
+    if (score <= 3) return { score: 2, label: 'Good', color: 'bg-amber-500' };
+    return { score: 3, label: 'Strong', color: 'bg-emerald-500' };
+  };
+
+  const pwStrength = getPasswordStrength(password);
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 8) { setError('Password must be at least 8 characters'); return; }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -41,274 +71,260 @@ function SignupContent() {
           emailRedirectTo: `${getSiteUrl()}/dashboard`,
         },
       });
-      if (error) { setError(error.message); }
-      else { setSuccess(true); setTimeout(() => router.push('/dashboard'), 1800); }
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccess(true);
+        setTimeout(() => router.push('/dashboard'), 1800);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center relative hf-auth-shell"
-      style={{
-        background: 'var(--bg-primary)',
-        padding: 'var(--space-6)',
-      }}
-    >
+    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-[#0A0C10] text-[var(--text-primary)] font-['Inter'] p-4 sm:p-6 selection:bg-indigo-500 selection:text-white">
+      {/* Background Radial Orbs & Ambient Glow */}
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 w-full"
-        style={{ maxWidth: 400, margin: '0 auto' }}
-      >
-        {/* Brand mark */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-8)' }}>
-            <span style={{ fontSize: 26, lineHeight: 1 }}>🙂</span>
-          <span
-            className="gradient-text"
-            style={{
-              fontSize: 18,
-              fontWeight: 700,
-              fontFamily: "'Outfit', sans-serif",
-              letterSpacing: '-0.03em',
-            }}
-          >
-            Productivity Master
-          </span>
-        </div>
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.4, 0.65, 0.4],
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[36rem] h-[36rem] rounded-full bg-gradient-to-tr from-indigo-600/30 via-purple-600/25 to-pink-500/20 blur-[100px] pointer-events-none"
+      />
+      <motion.div
+        animate={{
+          scale: [1, 1.15, 1],
+          opacity: [0.25, 0.45, 0.25],
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
+        className="absolute bottom-10 right-10 w-[24rem] h-[24rem] rounded-full bg-gradient-to-br from-blue-600/25 via-teal-500/15 to-purple-600/20 blur-[90px] pointer-events-none"
+      />
 
-        {/* Header */}
-        <div style={{ marginBottom: 'var(--space-6)' }}>
-          <span className="eyebrow">Get started</span>
-          <h1
-            style={{
-              fontSize: 28,
-              fontWeight: 600,
-              color: 'var(--text-primary)',
-              fontFamily: "'Outfit', sans-serif",
-              letterSpacing: '-0.03em',
-              lineHeight: 1.15,
-              marginTop: 'var(--space-2)',
-            }}
-          >
-            Create your account
+      {/* Modern Grid Lines Overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_75%_75%_at_50%_50%,#000_60%,transparent_100%)] pointer-events-none" />
+
+      {/* Main Glass Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 w-full max-w-[440px] rounded-3xl bg-[#12151E]/85 backdrop-blur-2xl border border-white/10 p-7 sm:p-9 shadow-[0_24px_64px_rgba(0,0,0,0.6),0_2px_8px_rgba(255,255,255,0.05)_inset]"
+      >
+        {/* Brand Header */}
+        <div className="flex flex-col items-center text-center mb-6">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-indigo-600 flex items-center justify-center shadow-[0_0_24px_rgba(99,102,241,0.5)] border border-white/20 mb-3">
+            <Sparkles size={24} className="text-white" />
+          </div>
+          <h1 className="text-2xl font-bold font-['Outfit'] tracking-tight text-white">
+            Productivity Master
           </h1>
-          <p style={{ fontSize: 13.5, color: 'var(--text-muted)', marginTop: 'var(--space-2)', letterSpacing: '-0.005em' }}>
-            Build habits that actually stick.
+          <p className="text-[13.5px] text-white/60 mt-1">
+            Start tracking habits and building streak momentum
           </p>
         </div>
 
-        {/* Form card */}
-        <div
-          style={{
-            background: 'var(--glass-bg)',
-            boxShadow: 'var(--glass-shadow)',
-            borderRadius: 'var(--r-xl)',
-            padding: 'var(--space-6)',
-          }}
-        >
-          {success ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.25 }}
-              style={{ textAlign: 'center', padding: 'var(--space-4) 0' }}
-            >
-              <div
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '50%',
-                  background: 'var(--accent-glow-md)',
-                  border: '1px solid var(--border-accent)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 'var(--space-3)',
-                }}
-              >
-                <CheckCircle2 size={24} color="var(--accent-primary)" strokeWidth={2} />
-              </div>
-              <h3 style={{ fontSize: 17, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6, fontFamily: "'Outfit'" }}>
-                Account created
-              </h3>
-              <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Taking you to your dashboard…</p>
-            </motion.div>
-          ) : (
-            <>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  style={{
-                    padding: '10px 12px',
-                    borderRadius: 'var(--r-md)',
-                    marginBottom: 'var(--space-4)',
-                    background: error.includes('already registered') ? 'rgba(146, 146, 146,0.1)' : 'var(--danger-glow)',
-                    border: `1px solid ${error.includes('already registered') ? 'rgba(146, 146, 146,0.2)' : 'rgba(140, 140, 140,0.24)'}`,
-                    color: error.includes('already registered') ? 'var(--text-primary)' : 'var(--danger)',
-                    fontSize: 12.5,
-                    fontWeight: 500,
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <AlertCircle size={14} style={{ flexShrink: 0, color: error.includes('already registered') ? 'var(--accent-primary)' : 'inherit' }} />
-                    <span>{error}</span>
-                  </div>
-                  {error.includes('already registered') && (
-                    <Link 
-                      href="/login" 
-                      style={{ 
-                        display: 'block', 
-                        marginTop: 8, 
-                        color: 'var(--accent-primary)', 
-                        textDecoration: 'none',
-                        fontSize: 12,
-                        fontWeight: 600
-                      }}
-                    >
-                      Account already exists. Log in instead →
-                    </Link>
-                  )}
-                </motion.div>
-              )}
-
-              <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                <Field
-                  label="Full name"
-                  type="text"
-                  value={fullName}
-                  onChange={setFullName}
-                  placeholder="Your name"
-                  autoComplete="name"
-                  required
-                />
-
-                <Field
-                  label="Email"
-                  type="email"
-                  value={email}
-                  onChange={setEmail}
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                  required
-                />
-
-                <Field
-                  label="Password"
-                  type={showPw ? 'text' : 'password'}
-                  value={password}
-                  onChange={setPassword}
-                  placeholder="At least 8 characters"
-                  autoComplete="new-password"
-                  required
-                  minLength={8}
-                  trailing={
-                    <button
-                      type="button"
-                      onClick={() => setShowPw((v) => !v)}
-                      aria-label={showPw ? 'Hide password' : 'Show password'}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 4,
-                        border: 'none',
-                        background: 'transparent',
-                        color: 'var(--text-muted)',
-                        cursor: 'pointer',
-                        borderRadius: 6,
-                      }}
-                    >
-                      {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
-                    </button>
-                  }
-                />
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6,
-                    width: '100%',
-                    padding: '11px 18px',
-                    borderRadius: 'var(--r-md)',
-                    fontSize: 13.5,
-                    fontWeight: 700,
-                    letterSpacing: '-0.01em',
-                    color: 'var(--accent-on-primary)',
-                    background: 'var(--accent-primary)',
-                    border: '1px solid rgba(255, 255, 255,0.14)',
-                    boxShadow: 'none',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    opacity: loading ? 0.6 : 1,
-                    transition: 'transform 0.15s ease, filter 0.15s ease, background 0.15s ease, opacity 0.15s ease, border-color 0.15s ease',
-                    marginTop: 'var(--space-1)',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (loading) return;
-                    (e.currentTarget as HTMLElement).style.filter = 'brightness(1.06)';
-                    (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
-                    (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.filter = '';
-                    (e.currentTarget as HTMLElement).style.transform = '';
-                    (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-                  }}
-                >
-                  {loading ? 'Creating account…' : (
-                    <>
-                      Create account
-                      <ArrowRight size={14} strokeWidth={2.5} />
-                    </>
-                  )}
-                </button>
-              </form>
-
-              {/* Divider */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: 'var(--space-5) 0 var(--space-4)' }}>
-                <div style={{ flex: 1, height: 1, background: 'var(--border-subtle)' }} />
-                <span style={{ fontSize: 11, color: 'var(--text-dimmed)', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'IBM Plex Mono', monospace" }}>or</span>
-                <div style={{ flex: 1, height: 1, background: 'var(--border-subtle)' }} />
-              </div>
-
-              {/* Google */}
-              <SocialAuth loading={loading} setLoading={setLoading} />
-
-              <p style={{ textAlign: 'center', marginTop: 'var(--space-5)', fontSize: 13, color: 'var(--text-muted)' }}>
-                Already have an account?{' '}
-                <Link
-                  href="/login"
-                  style={{ color: 'var(--accent-primary)', fontWeight: 600, textDecoration: 'none' }}
-                >
-                  Sign in
-                </Link>
-              </p>
-            </>
-          )}
+        {/* Tab Switcher (Sign In / Sign Up) */}
+        <div className="grid grid-cols-2 p-1 rounded-xl bg-white/[0.05] border border-white/10 mb-6">
+          <Link
+            href="/login"
+            className="py-2 text-[13.5px] font-medium rounded-lg text-white/60 hover:text-white text-center transition-colors"
+          >
+            Sign In
+          </Link>
+          <button
+            type="button"
+            className="py-2 text-[13.5px] font-semibold rounded-lg bg-indigo-600 text-white shadow-[0_2px_10px_rgba(79,70,229,0.4)] transition-all cursor-default"
+          >
+            Create Account
+          </button>
         </div>
 
-        {/* Legal */}
-        <p
-          style={{
-            textAlign: 'center',
-            marginTop: 'var(--space-5)',
-            fontSize: 11.5,
-            color: 'var(--text-dimmed)',
-            letterSpacing: '-0.005em',
-            lineHeight: 1.6,
-          }}
-        >
-          By creating an account you agree to our
-          <br />
-          Terms of Service and Privacy Policy.
-        </p>
+        {success ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-6 p-5 rounded-2xl bg-white/[0.04] border border-white/10"
+          >
+            <div className="w-14 h-14 rounded-full inline-flex items-center justify-center mb-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <CheckCircle2 size={30} strokeWidth={2.5} />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-1.5 font-['Outfit'] tracking-tight">
+              Account Created!
+            </h3>
+            <p className="text-[14px] text-white/60">
+              Redirecting to your habit dashboard…
+            </p>
+          </motion.div>
+        ) : (
+          <>
+            {/* Error Alert */}
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: error ? 1 : 0, height: error ? 'auto' : 0 }}
+              className="overflow-hidden"
+            >
+              {error && (
+                <div
+                  className="mb-5 p-3.5 rounded-xl flex items-start gap-3 text-xs font-medium"
+                  style={{
+                    background: error.includes('already registered')
+                      ? 'rgba(79, 70, 229, 0.15)'
+                      : 'rgba(244, 63, 94, 0.15)',
+                    border: `1px solid ${
+                      error.includes('already registered')
+                        ? 'rgba(79, 70, 229, 0.3)'
+                        : 'rgba(244, 63, 94, 0.3)'
+                    }`,
+                    color: error.includes('already registered') ? '#818cf8' : '#fb7185',
+                  }}
+                >
+                  <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                  <div className="flex flex-col gap-1 leading-relaxed">
+                    <span>{error}</span>
+                    {error.includes('already registered') && (
+                      <Link
+                        href="/login"
+                        className="text-white font-semibold underline underline-offset-2 hover:text-indigo-300 transition-colors"
+                      >
+                        Account exists. Log in here &rarr;
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )}
+            </motion.div>
+
+            {/* Form */}
+            <form onSubmit={handleSignup} className="flex flex-col gap-3.5">
+              {/* Full Name Field */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[13px] font-semibold text-white/90 px-0.5">
+                  Full Name
+                </label>
+                <div className="relative flex items-center">
+                  <User size={17} className="absolute left-3.5 text-white/40 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Alex Morgan"
+                    autoComplete="name"
+                    required
+                    className="w-full py-2.5 pl-10 pr-3.5 bg-white/[0.06] border border-white/12 rounded-xl text-white text-[14px] placeholder:text-white/30 outline-none focus:border-indigo-500 focus:bg-white/[0.09] focus:ring-4 focus:ring-indigo-500/20 transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Email Field */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[13px] font-semibold text-white/90 px-0.5">
+                  Email Address
+                </label>
+                <div className="relative flex items-center">
+                  <Mail size={17} className="absolute left-3.5 text-white/40 pointer-events-none" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="alex@example.com"
+                    autoComplete="email"
+                    required
+                    className="w-full py-2.5 pl-10 pr-3.5 bg-white/[0.06] border border-white/12 rounded-xl text-white text-[14px] placeholder:text-white/30 outline-none focus:border-indigo-500 focus:bg-white/[0.09] focus:ring-4 focus:ring-indigo-500/20 transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Password Field */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[13px] font-semibold text-white/90 px-0.5">
+                  Password
+                </label>
+                <div className="relative flex items-center">
+                  <Lock size={17} className="absolute left-3.5 text-white/40 pointer-events-none" />
+                  <input
+                    type={showPw ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="At least 8 characters"
+                    autoComplete="new-password"
+                    required
+                    minLength={8}
+                    className="w-full py-2.5 pl-10 pr-10 bg-white/[0.06] border border-white/12 rounded-xl text-white text-[14px] placeholder:text-white/30 outline-none focus:border-indigo-500 focus:bg-white/[0.09] focus:ring-4 focus:ring-indigo-500/20 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    className="absolute right-3 p-1 text-white/40 hover:text-white transition-colors cursor-pointer"
+                    aria-label={showPw ? 'Hide password' : 'Show password'}
+                  >
+                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+
+                {/* Password Strength Indicator */}
+                {password && (
+                  <div className="mt-1 px-0.5 space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-white/40">Password Strength:</span>
+                      <span className="font-semibold text-white/90">{pwStrength.label}</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden flex gap-1">
+                      <div className={`h-full flex-1 rounded-full transition-all duration-300 ${pwStrength.score >= 1 ? pwStrength.color : 'bg-transparent'}`} />
+                      <div className={`h-full flex-1 rounded-full transition-all duration-300 ${pwStrength.score >= 2 ? pwStrength.color : 'bg-transparent'}`} />
+                      <div className={`h-full flex-1 rounded-full transition-all duration-300 ${pwStrength.score >= 3 ? pwStrength.color : 'bg-transparent'}`} />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-2 w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl text-white font-semibold text-[14.5px] bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 hover:from-indigo-400 hover:to-purple-500 border border-white/15 shadow-[0_4px_20px_rgba(79,70,229,0.4)] hover:shadow-[0_6px_24px_rgba(79,70,229,0.5)] active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Zap size={16} className="animate-spin" /> Creating Account…
+                  </span>
+                ) : (
+                  <>
+                    <span>Create Free Account</span>
+                    <ArrowRight size={17} strokeWidth={2.5} />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-white/10" />
+              <span className="text-[11px] uppercase tracking-wider text-white/40 font-semibold">
+                Or signup with
+              </span>
+              <div className="flex-1 h-px bg-white/10" />
+            </div>
+
+            {/* Google OAuth Button */}
+            <SocialAuth loading={loading} setLoading={setLoading} />
+
+            {/* Terms Disclaimer */}
+            <p className="text-center mt-5 text-[11.5px] text-white/40 leading-relaxed max-w-[280px] mx-auto">
+              By signing up you agree to our Terms of Service and Privacy Policy.
+            </p>
+          </>
+        )}
+
+        {/* Security Badge */}
+        <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-center gap-4 text-white/40 text-xs">
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck size={14} className="text-emerald-400" /> Free Forever Plan
+          </span>
+          <span>•</span>
+          <span>No Credit Card Required</span>
+        </div>
       </motion.div>
     </div>
   );
@@ -316,75 +332,8 @@ function SignupContent() {
 
 export default function SignupPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[var(--bg-primary)]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#0A0C10]" />}>
       <SignupContent />
     </Suspense>
-  );
-}
-
-/* ── Field primitive — aligns with new token system ─────────────── */
-interface FieldProps {
-  label: string;
-  type: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  required?: boolean;
-  minLength?: number;
-  autoComplete?: string;
-  trailing?: React.ReactNode;
-}
-
-function Field({ label, type, value, onChange, placeholder, required, minLength, autoComplete, trailing }: FieldProps) {
-  const [focus, setFocus] = useState(false);
-  return (
-    <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <span
-        style={{
-          fontSize: 11.5,
-          fontWeight: 500,
-          color: 'var(--text-secondary)',
-          letterSpacing: '-0.005em',
-        }}
-      >
-        {label}
-      </span>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          background: 'var(--bg-tertiary)',
-          border: `1px solid ${focus ? 'var(--border-active)' : 'var(--border-default)'}`,
-          borderRadius: 'var(--r-md)',
-          padding: '0 10px 0 12px',
-          transition: 'transform 0.15s ease, filter 0.15s ease, background 0.15s ease, opacity 0.15s ease, border-color 0.15s ease',
-          boxShadow: 'none',
-        }}
-      >
-        <input
-          type={type}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onFocus={() => setFocus(true)}
-          onBlur={() => setFocus(false)}
-          placeholder={placeholder}
-          required={required}
-          minLength={minLength}
-          autoComplete={autoComplete}
-          style={{
-            flex: 1,
-            padding: '11px 0',
-            background: 'transparent',
-            border: 'none',
-            outline: 'none',
-            color: 'var(--text-primary)',
-            fontSize: 13.5,
-            fontFamily: 'inherit',
-            letterSpacing: '-0.005em',
-          }}
-        />
-        {trailing}
-      </div>
-    </label>
   );
 }
